@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Delicious — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--blush:#f7c5c5;--rose:#e8a0a0;--cream:#fff8f3;--peach:#fde8d8;--mauve:#c9a0a0;--text:#7a5555;--deep:#5a3e3e}
+body{background:var(--cream);font-family:'Jost',sans-serif;min-height:100dvh;padding:0 16px calc(env(safe-area-inset-bottom)+24px);position:relative}
+body::before,body::after{content:'';position:fixed;border-radius:50%;filter:blur(80px);opacity:.35;pointer-events:none;z-index:0}
+body::before{width:400px;height:400px;background:var(--blush);top:-100px;left:-100px}
+body::after{width:350px;height:350px;background:var(--peach);bottom:-80px;right:-80px}
+
+header{position:relative;z-index:2;text-align:center;padding:32px 0 12px}
+header h1{font-family:'Pinyon Script',cursive;font-size:clamp(40px,10vw,64px);color:var(--rose);line-height:1}
+header .session-name{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--mauve);margin-top:2px}
+
+.share-bar{position:relative;z-index:2;display:flex;gap:10px;justify-content:center;margin:12px 0 20px;flex-wrap:wrap}
+.share-bar button{padding:10px 20px;border:none;border-radius:100px;font-family:'Jost',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:transform .2s}
+.share-bar .btn-copy{background:var(--blush);color:var(--text)}
+.share-bar .btn-wa{background:#25d366;color:white}
+.share-bar button:hover{transform:scale(1.05)}
+
+.section-title{position:relative;z-index:2;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--mauve);margin:24px 0 12px;font-weight:400}
+
+/* LEADERBOARD */
+.leaderboard{position:relative;z-index:2;display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch}
+.leaderboard::-webkit-scrollbar{display:none}
+.leader-card{flex:0 0 100px;text-align:center}
+.leader-card img{width:100px;height:130px;object-fit:cover;border-radius:16px;box-shadow:0 4px 16px rgba(180,120,120,.15)}
+.leader-card .hearts{font-size:13px;color:var(--rose);margin-top:6px;font-weight:500}
+
+/* VIEWERS */
+.viewers-list{position:relative;z-index:2;display:flex;flex-direction:column;gap:12px}
+.viewer-card{background:rgba(255,255,255,.7);backdrop-filter:blur(8px);border-radius:20px;padding:16px;box-shadow:0 2px 12px rgba(180,120,120,.08);transition:transform .2s}
+.viewer-card:hover{transform:translateY(-2px)}
+.viewer-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.viewer-name{font-size:16px;color:var(--text);font-weight:500}
+.viewer-meta{font-size:11px;color:var(--mauve);letter-spacing:1px}
+.viewer-picks{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
+.viewer-picks::-webkit-scrollbar{display:none}
+.viewer-picks img{width:60px;height:80px;object-fit:cover;border-radius:10px;flex-shrink:0;box-shadow:0 2px 8px rgba(180,120,120,.1)}
+.viewer-picks .no-picks{font-size:12px;color:var(--mauve);font-style:italic}
+.viewer-actions{display:flex;gap:8px;margin-top:10px}
+.btn-chat{padding:8px 16px;background:var(--blush);border:none;border-radius:100px;font-family:'Jost',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text);cursor:pointer;transition:transform .2s}
+.btn-chat:hover{transform:scale(1.05)}
+
+/* CHAT MODAL */
+.chat-modal{display:none;position:fixed;inset:0;z-index:300;background:rgba(255,248,243,.97);backdrop-filter:blur(8px);flex-direction:column;padding:0}
+.chat-modal.open{display:flex}
+.chat-modal-header{display:flex;justify-content:space-between;align-items:center;padding:20px;border-bottom:1px solid var(--peach)}
+.chat-modal-header .name{font-size:16px;color:var(--text);font-weight:500}
+.chat-modal-header button{background:none;border:none;font-size:24px;color:var(--mauve);cursor:pointer}
+.chat-modal-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px}
+.chat-msg{max-width:80%;padding:10px 14px;border-radius:16px;font-size:13px;line-height:1.4;color:var(--text)}
+.chat-msg.from-creator{background:var(--peach);align-self:flex-end;border-bottom-right-radius:4px}
+.chat-msg.from-viewer{background:var(--blush);align-self:flex-start;border-bottom-left-radius:4px}
+.chat-input-row{display:flex;padding:12px 16px calc(env(safe-area-inset-bottom)+12px);gap:8px;border-top:1px solid var(--peach);background:white}
+.chat-input-row input{flex:1;padding:12px 16px;border:2px solid var(--blush);border-radius:100px;font-family:'Jost',sans-serif;font-size:14px;color:var(--text);outline:none}
+.chat-input-row input:focus{border-color:var(--rose)}
+.chat-input-row button{width:42px;height:42px;border-radius:50%;background:var(--rose);border:none;color:white;font-size:18px;cursor:pointer}
+
+.empty-state{position:relative;z-index:2;text-align:center;padding:60px 20px;color:var(--mauve);font-size:14px;letter-spacing:1px}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.viewer-card{animation:fadeIn .4s ease}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>delicious</h1>
+  <div class="session-name" id="sessionName">loading...</div>
+</header>
+
+<div class="share-bar">
+  <button class="btn-copy" id="btnCopy">copy link</button>
+  <button class="btn-wa" id="btnWa">whatsapp</button>
+</div>
+
+<div class="section-title">most loved</div>
+<div class="leaderboard" id="leaderboard">
+  <div class="empty-state" style="width:100%">waiting for picks...</div>
+</div>
+
+<div class="section-title">friends swiping</div>
+<div class="viewers-list" id="viewersList">
+  <div class="empty-state">share the link — waiting for friends to join...</div>
+</div>
+
+<div class="chat-modal" id="chatModal">
+  <div class="chat-modal-header">
+    <span class="name" id="chatViewerName"></span>
+    <button id="chatClose">&times;</button>
+  </div>
+  <div class="chat-modal-messages" id="chatModalMessages"></div>
+  <div class="chat-input-row">
+    <input type="text" id="chatModalInput" placeholder="type a message...">
+    <button id="chatModalSend">&#10148;</button>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const sessionId = location.pathname.split('/dashboard/')[1];
+let session = null;
+let creatorToken = localStorage.getItem(`delicious-${sessionId}`);
+let activeViewerId = null;
+const socket = io();
+
+async function loadDashboard() {
+  if (!creatorToken) {
+    document.getElementById('viewersList').innerHTML = '<div class="empty-state">no creator token found — you may need to create a new session</div>';
+    return;
+  }
+
+  const res = await fetch(`/api/sessions/${sessionId}/dashboard`, {
+    headers: { 'x-creator-token': creatorToken }
+  });
+  if (!res.ok) {
+    document.getElementById('viewersList').innerHTML = '<div class="empty-state">could not load session</div>';
+    return;
+  }
+  session = await res.json();
+  document.getElementById('sessionName').textContent = session.name;
+
+  socket.emit('join-dashboard', sessionId);
+
+  setupShare();
+  renderLeaderboard();
+  renderViewers();
+}
+
+function setupShare() {
+  const shareUrl = `${location.origin}/s/${sessionId}`;
+
+  document.getElementById('btnCopy').onclick = () => {
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      document.getElementById('btnCopy').textContent = 'copied!';
+      setTimeout(() => document.getElementById('btnCopy').textContent = 'copy link', 2000);
+    });
+  };
+
+  document.getElementById('btnWa').onclick = () => {
+    const msg = encodeURIComponent(`pick your faves from my shoot \u{1F497} ${shareUrl}`);
+    window.open(`https://wa.me/?text=${msg}`, '_blank');
+  };
+}
+
+function renderLeaderboard() {
+  if (!session || !session.photos) return;
+  const counts = {};
+  session.photos.forEach((_, i) => counts[i] = 0);
+  session.viewers.forEach(v => v.picks.forEach(p => counts[p] = (counts[p] || 0) + 1));
+
+  const sorted = Object.entries(counts)
+    .map(([idx, count]) => ({ idx: parseInt(idx), count }))
+    .filter(x => x.count > 0)
+    .sort((a, b) => b.count - a.count);
+
+  const el = document.getElementById('leaderboard');
+  if (sorted.length === 0) {
+    el.innerHTML = '<div class="empty-state" style="width:100%">waiting for picks...</div>';
+    return;
+  }
+
+  el.innerHTML = sorted.map(({ idx, count }) => {
+    const photo = session.photos[idx];
+    return `<div class="leader-card">
+      <img src="${photo.url}" alt="photo">
+      <div class="hearts">${'\u2764\uFE0F'.repeat(Math.min(count, 5))} ${count}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderViewers() {
+  const el = document.getElementById('viewersList');
+  if (!session.viewers.length) {
+    el.innerHTML = '<div class="empty-state">share the link — waiting for friends to join...</div>';
+    return;
+  }
+  el.innerHTML = session.viewers.map(v => {
+    const picksHtml = v.picks.length > 0
+      ? v.picks.map(idx => `<img src="${session.photos[idx]?.url}" alt="pick">`).join('')
+      : '<span class="no-picks">still swiping...</span>';
+    return `<div class="viewer-card" data-viewer-id="${v.id}">
+      <div class="viewer-top">
+        <span class="viewer-name">${escHtml(v.name)}</span>
+        <span class="viewer-meta">${v.swiped}/${session.photos.length} swiped · ${v.picks.length} picks</span>
+      </div>
+      <div class="viewer-picks">${picksHtml}</div>
+      <div class="viewer-actions">
+        <button class="btn-chat" onclick="openChat('${v.id}')">chat</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function escHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+// Chat modal
+function openChat(viewerId) {
+  activeViewerId = viewerId;
+  const viewer = session.viewers.find(v => v.id === viewerId);
+  if (!viewer) return;
+  document.getElementById('chatViewerName').textContent = viewer.name;
+  const msgs = document.getElementById('chatModalMessages');
+  msgs.innerHTML = '';
+  viewer.chatMessages.forEach(m => appendModalMsg(m.sender, m.text));
+  document.getElementById('chatModal').classList.add('open');
+  document.getElementById('chatModalInput').focus();
+}
+
+document.getElementById('chatClose').addEventListener('click', () => {
+  document.getElementById('chatModal').classList.remove('open');
+  activeViewerId = null;
+});
+
+document.getElementById('chatModalSend').addEventListener('click', sendModalChat);
+document.getElementById('chatModalInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendModalChat(); });
+
+function sendModalChat() {
+  if (!activeViewerId) return;
+  const input = document.getElementById('chatModalInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+
+  fetch(`/api/sessions/${sessionId}/chat`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ viewerId: activeViewerId, sender: 'creator', text })
+  });
+
+  appendModalMsg('creator', text);
+  const viewer = session.viewers.find(v => v.id === activeViewerId);
+  if (viewer) viewer.chatMessages.push({ sender: 'creator', text, timestamp: Date.now() });
+}
+
+function appendModalMsg(sender, text) {
+  const msgs = document.getElementById('chatModalMessages');
+  const div = document.createElement('div');
+  div.className = `chat-msg ${sender === 'creator' ? 'from-creator' : 'from-viewer'}`;
+  div.textContent = text;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+// Socket events
+socket.on('viewer-joined', ({ viewer }) => {
+  session.viewers.push(viewer);
+  renderViewers();
+});
+
+socket.on('swipe', (data) => {
+  const viewer = session.viewers.find(v => v.id === data.viewerId);
+  if (viewer) {
+    viewer.swiped = data.swiped;
+    viewer.picks = data.picks;
+  }
+  renderViewers();
+  renderLeaderboard();
+});
+
+socket.on('chat-message', (data) => {
+  const viewer = session.viewers.find(v => v.id === data.viewerId);
+  if (viewer) viewer.chatMessages.push({ sender: data.sender, text: data.text, timestamp: data.timestamp });
+  if (activeViewerId === data.viewerId && data.sender === 'viewer') {
+    appendModalMsg('viewer', data.text);
+  }
+});
+
+loadDashboard();
+</script>
+</body>
+</html>

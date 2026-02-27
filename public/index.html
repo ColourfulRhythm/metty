@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Delicious</title>
+<link href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--blush:#f7c5c5;--rose:#e8a0a0;--cream:#fff8f3;--peach:#fde8d8;--mauve:#c9a0a0;--text:#7a5555;--deep:#5a3e3e}
+body{background:var(--cream);font-family:'Jost',sans-serif;min-height:100dvh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden;position:relative;padding:0 20px calc(env(safe-area-inset-bottom)+24px)}
+body::before,body::after{content:'';position:fixed;border-radius:50%;filter:blur(80px);opacity:.4;pointer-events:none;z-index:0}
+body::before{width:400px;height:400px;background:var(--blush);top:-100px;left:-100px}
+body::after{width:350px;height:350px;background:var(--peach);bottom:-80px;right:-80px}
+
+header{position:relative;z-index:2;padding:48px 0 8px;text-align:center}
+header h1{font-family:'Pinyon Script',cursive;font-size:clamp(60px,15vw,100px);color:var(--rose);line-height:1;text-shadow:2px 3px 12px rgba(232,160,160,.3);letter-spacing:2px}
+header p{font-size:12px;letter-spacing:4px;text-transform:uppercase;color:var(--mauve);font-weight:300;margin-top:4px}
+
+.hero{position:relative;z-index:2;text-align:center;margin-top:28px;max-width:420px}
+.hero h2{font-size:18px;color:var(--text);font-weight:400;line-height:1.5}
+.hero h2 span{color:var(--rose);font-weight:500}
+
+.upload-area{position:relative;z-index:2;width:100%;max-width:420px;margin-top:32px;border:2px dashed var(--blush);border-radius:24px;padding:40px 24px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;background:rgba(255,255,255,.5);backdrop-filter:blur(8px)}
+.upload-area:hover,.upload-area.dragover{border-color:var(--rose);background:rgba(247,197,197,.12)}
+.upload-area .icon{font-size:40px;margin-bottom:12px}
+.upload-area p{color:var(--mauve);font-size:14px;letter-spacing:1px}
+.upload-area .sub{font-size:11px;margin-top:6px;color:#c0a0a0}
+
+.preview-grid{position:relative;z-index:2;display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;width:100%;max-width:420px;margin-top:16px}
+.preview-grid img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:12px;box-shadow:0 2px 8px rgba(180,120,120,.12)}
+.preview-grid .remove{position:absolute;top:-6px;right:-6px;width:20px;height:20px;background:var(--rose);color:white;border:none;border-radius:50%;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.preview-item{position:relative}
+
+.form-section{position:relative;z-index:2;width:100%;max-width:420px;margin-top:24px;display:flex;flex-direction:column;gap:14px}
+.form-section input{width:100%;padding:14px 18px;border:2px solid var(--blush);border-radius:16px;background:rgba(255,255,255,.7);font-family:'Jost',sans-serif;font-size:14px;color:var(--text);outline:none;transition:border-color .2s}
+.form-section input:focus{border-color:var(--rose)}
+.form-section input::placeholder{color:var(--mauve)}
+
+.btn-create{position:relative;z-index:2;width:100%;max-width:420px;margin-top:20px;padding:16px 32px;background:var(--rose);border:none;border-radius:100px;font-family:'Jost',sans-serif;font-size:15px;letter-spacing:3px;text-transform:uppercase;color:white;cursor:pointer;transition:transform .2s,box-shadow .2s;box-shadow:0 6px 24px rgba(232,160,160,.3)}
+.btn-create:hover{transform:scale(1.03);box-shadow:0 8px 32px rgba(232,160,160,.45)}
+.btn-create:active{transform:scale(.98)}
+.btn-create:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+.share-modal{display:none;position:fixed;inset:0;z-index:200;background:rgba(255,248,243,.95);backdrop-filter:blur(12px);flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px;text-align:center}
+.share-modal.show{display:flex}
+.share-modal h2{font-family:'Pinyon Script',cursive;font-size:52px;color:var(--rose)}
+.share-modal .link-box{background:white;padding:14px 20px;border-radius:16px;font-size:14px;color:var(--text);word-break:break-all;box-shadow:0 2px 12px rgba(180,120,120,.1);max-width:360px;width:100%}
+.share-modal .btn-copy{margin-top:8px;padding:14px 28px;background:var(--blush);border:none;border-radius:100px;font-family:'Jost',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--text);cursor:pointer;transition:transform .2s}
+.share-modal .btn-copy:hover{transform:scale(1.05)}
+.share-modal .btn-wa{margin-top:4px;padding:14px 28px;background:#25d366;border:none;border-radius:100px;font-family:'Jost',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:white;cursor:pointer;transition:transform .2s}
+.share-modal .btn-wa:hover{transform:scale(1.05)}
+.share-modal .btn-dash{margin-top:12px;padding:12px 24px;background:transparent;border:2px solid var(--rose);border-radius:100px;font-family:'Jost',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--rose);cursor:pointer;transition:transform .2s}
+.share-modal .btn-dash:hover{transform:scale(1.05)}
+.share-modal .sub{font-size:12px;color:var(--mauve);letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+
+.progress-bar{display:none;width:100%;max-width:420px;height:4px;background:var(--blush);border-radius:4px;margin-top:16px;overflow:hidden;position:relative;z-index:2}
+.progress-bar .fill{height:100%;background:var(--rose);border-radius:4px;transition:width .3s;width:0%}
+
+.count-label{position:relative;z-index:2;font-size:12px;color:var(--mauve);letter-spacing:2px;margin-top:8px;text-transform:uppercase}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>delicious</h1>
+  <p>swipe & pick</p>
+</header>
+
+<div class="hero">
+  <h2>Upload your photos, share with friends, let them <span>pick their faves</span></h2>
+</div>
+
+<div class="upload-area" id="uploadArea">
+  <div class="icon">+</div>
+  <p>tap or drag photos here</p>
+  <div class="sub">up to 30 photos</div>
+</div>
+<input type="file" id="fileInput" multiple accept="image/*" hidden>
+
+<div class="count-label" id="countLabel"></div>
+<div class="preview-grid" id="previewGrid"></div>
+
+<div class="form-section" id="formSection" style="display:none">
+  <input type="text" id="sessionName" placeholder="session name (e.g. Beach shoot June)">
+  <input type="text" id="creatorName" placeholder="your name (optional)">
+</div>
+
+<div class="progress-bar" id="progressBar"><div class="fill" id="progressFill"></div></div>
+
+<button class="btn-create" id="btnCreate" style="display:none">create session</button>
+
+<div class="share-modal" id="shareModal">
+  <h2>ready!</h2>
+  <div class="sub">share this link with your friends</div>
+  <div class="link-box" id="shareLink"></div>
+  <button class="btn-copy" id="btnCopy">copy link</button>
+  <button class="btn-wa" id="btnWa">share on whatsapp</button>
+  <button class="btn-dash" id="btnDash">open dashboard</button>
+</div>
+
+<script>
+const uploadArea = document.getElementById('uploadArea');
+const fileInput = document.getElementById('fileInput');
+const previewGrid = document.getElementById('previewGrid');
+const formSection = document.getElementById('formSection');
+const btnCreate = document.getElementById('btnCreate');
+const progressBar = document.getElementById('progressBar');
+const progressFill = document.getElementById('progressFill');
+const shareModal = document.getElementById('shareModal');
+const countLabel = document.getElementById('countLabel');
+
+let selectedFiles = [];
+
+uploadArea.addEventListener('click', () => fileInput.click());
+uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+uploadArea.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadArea.classList.remove('dragover');
+  addFiles(e.dataTransfer.files);
+});
+fileInput.addEventListener('change', () => addFiles(fileInput.files));
+
+function addFiles(fileList) {
+  const newFiles = Array.from(fileList).filter(f => f.type.startsWith('image/'));
+  selectedFiles = [...selectedFiles, ...newFiles].slice(0, 30);
+  renderPreviews();
+}
+
+function renderPreviews() {
+  previewGrid.innerHTML = '';
+  selectedFiles.forEach((file, i) => {
+    const item = document.createElement('div');
+    item.className = 'preview-item';
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(file);
+    const rm = document.createElement('button');
+    rm.className = 'remove';
+    rm.textContent = '\u00d7';
+    rm.onclick = () => { selectedFiles.splice(i, 1); renderPreviews(); };
+    item.appendChild(img);
+    item.appendChild(rm);
+    previewGrid.appendChild(item);
+  });
+
+  countLabel.textContent = selectedFiles.length > 0 ? `${selectedFiles.length} photo${selectedFiles.length > 1 ? 's' : ''} selected` : '';
+
+  if (selectedFiles.length > 0) {
+    formSection.style.display = 'flex';
+    btnCreate.style.display = 'block';
+  } else {
+    formSection.style.display = 'none';
+    btnCreate.style.display = 'none';
+  }
+}
+
+btnCreate.addEventListener('click', async () => {
+  if (selectedFiles.length === 0) return;
+  btnCreate.disabled = true;
+  btnCreate.textContent = 'uploading...';
+  progressBar.style.display = 'block';
+
+  const formData = new FormData();
+  formData.append('name', document.getElementById('sessionName').value || 'My Shoot');
+  formData.append('creator', document.getElementById('creatorName').value || '');
+  selectedFiles.forEach(f => formData.append('photos', f));
+
+  try {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/sessions');
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) progressFill.style.width = Math.round((e.loaded / e.total) * 100) + '%';
+    };
+    xhr.onload = () => {
+      if (xhr.status === 200) {
+        const data = JSON.parse(xhr.responseText);
+        localStorage.setItem(`delicious-${data.id}`, data.creatorToken);
+        showShareModal(data);
+      } else {
+        alert('Upload failed. Please try again.');
+        btnCreate.disabled = false;
+        btnCreate.textContent = 'create session';
+      }
+    };
+    xhr.onerror = () => {
+      alert('Network error. Please try again.');
+      btnCreate.disabled = false;
+      btnCreate.textContent = 'create session';
+    };
+    xhr.send(formData);
+  } catch (err) {
+    alert('Upload failed');
+    btnCreate.disabled = false;
+    btnCreate.textContent = 'create session';
+  }
+});
+
+function showShareModal(data) {
+  const fullUrl = `${location.origin}/s/${data.id}`;
+  document.getElementById('shareLink').textContent = fullUrl;
+  shareModal.classList.add('show');
+
+  document.getElementById('btnCopy').onclick = () => {
+    navigator.clipboard.writeText(fullUrl).then(() => {
+      document.getElementById('btnCopy').textContent = 'copied!';
+      setTimeout(() => document.getElementById('btnCopy').textContent = 'copy link', 2000);
+    });
+  };
+
+  document.getElementById('btnWa').onclick = () => {
+    const msg = encodeURIComponent(`pick your faves from my shoot \u{1F497} ${fullUrl}`);
+    window.open(`https://wa.me/?text=${msg}`, '_blank');
+  };
+
+  document.getElementById('btnDash').onclick = () => {
+    window.location.href = `/dashboard/${data.id}`;
+  };
+}
+</script>
+</body>
+</html>

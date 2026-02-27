@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Delicious</title>
+<link href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--blush:#f7c5c5;--rose:#e8a0a0;--cream:#fff8f3;--peach:#fde8d8;--mauve:#c9a0a0;--text:#7a5555;--card-w:min(340px,88vw);--card-h:min(480px,70vh)}
+body{background:var(--cream);font-family:'Jost',sans-serif;min-height:100dvh;display:flex;flex-direction:column;align-items:center;overflow:hidden;position:relative;padding-bottom:calc(env(safe-area-inset-bottom)+24px)}
+body::before,body::after{content:'';position:fixed;border-radius:50%;filter:blur(80px);opacity:.4;pointer-events:none;z-index:0}
+body::before{width:400px;height:400px;background:var(--blush);top:-100px;left:-100px}
+body::after{width:350px;height:350px;background:var(--peach);bottom:-80px;right:-80px}
+
+header{position:relative;z-index:2;padding:28px 0 4px;text-align:center}
+header h1{font-family:'Pinyon Script',cursive;font-size:clamp(44px,12vw,72px);color:var(--rose);line-height:1;text-shadow:2px 3px 12px rgba(232,160,160,.3)}
+header p{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--mauve);font-weight:300;margin-top:2px}
+
+/* NAME ENTRY */
+.name-entry{position:fixed;inset:0;z-index:200;background:var(--cream);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px;text-align:center}
+.name-entry.hidden{display:none}
+.name-entry h2{font-family:'Pinyon Script',cursive;font-size:52px;color:var(--rose)}
+.name-entry .sub{font-size:12px;color:var(--mauve);letter-spacing:2px;text-transform:uppercase}
+.name-entry input{width:100%;max-width:300px;padding:14px 18px;border:2px solid var(--blush);border-radius:16px;background:rgba(255,255,255,.7);font-family:'Jost',sans-serif;font-size:15px;color:var(--text);outline:none;text-align:center}
+.name-entry input:focus{border-color:var(--rose)}
+.name-entry input::placeholder{color:var(--mauve)}
+.name-entry button{padding:14px 36px;background:var(--rose);border:none;border-radius:100px;font-family:'Jost',sans-serif;font-size:14px;letter-spacing:3px;text-transform:uppercase;color:white;cursor:pointer;transition:transform .2s;box-shadow:0 6px 24px rgba(232,160,160,.3)}
+.name-entry button:hover{transform:scale(1.05)}
+
+/* CARD STACK */
+.stack{position:relative;z-index:2;width:var(--card-w);height:var(--card-h);margin-top:16px}
+.card{position:absolute;inset:0;border-radius:28px;overflow:hidden;cursor:grab;user-select:none;touch-action:none;box-shadow:0 12px 40px rgba(180,120,120,.18),0 2px 8px rgba(180,120,120,.1);will-change:transform}
+.card:active{cursor:grabbing}
+.card img{width:100%;height:100%;object-fit:cover;pointer-events:none;display:block}
+.card:nth-child(2){transform:rotate(3deg) scale(.97) translateY(6px);z-index:1}
+.card:nth-child(3){transform:rotate(-2deg) scale(.94) translateY(12px);z-index:0}
+.card:nth-child(n+4){transform:scale(.91) translateY(18px);z-index:-1;opacity:0}
+.card.top{z-index:10;transform:none!important}
+.stamp{position:absolute;top:28px;padding:6px 16px;border-radius:8px;font-family:'Jost',sans-serif;font-size:22px;font-weight:400;letter-spacing:3px;text-transform:uppercase;opacity:0;transition:opacity .15s;pointer-events:none}
+.stamp.love{left:24px;color:#e07a7a;border:3px solid #e07a7a;transform:rotate(-15deg)}
+.stamp.nope{right:24px;color:#b0a0a0;border:3px solid #b0a0a0;transform:rotate(15deg)}
+.card-overlay{position:absolute;bottom:0;left:0;right:0;height:45%;background:linear-gradient(to top,rgba(247,197,197,.55),transparent);border-radius:0 0 28px 28px}
+.card-num{position:absolute;bottom:18px;right:20px;font-size:11px;letter-spacing:3px;color:white;text-transform:uppercase;font-weight:300}
+
+.actions{position:relative;z-index:2;display:flex;gap:28px;margin-top:20px;align-items:center}
+.btn{width:58px;height:58px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 16px rgba(180,120,120,.15)}
+.btn:hover{transform:scale(1.12);box-shadow:0 8px 24px rgba(180,120,120,.25)}
+.btn:active{transform:scale(.96)}
+.btn-skip{background:white}
+.btn-love{background:var(--blush);width:68px;height:68px;font-size:26px}
+
+.dots{position:relative;z-index:2;display:flex;gap:7px;margin-top:16px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--blush);transition:background .3s,transform .3s}
+.dot.active{background:var(--rose);transform:scale(1.4)}
+.dot.done{background:var(--rose);opacity:.5}
+
+/* DONE SCREEN */
+.done-screen{display:none;position:fixed;inset:0;z-index:100;background:var(--cream);flex-direction:column;align-items:center;overflow-y:auto;padding:40px 20px calc(env(safe-area-inset-bottom)+40px)}
+.done-screen.show{display:flex}
+.done-screen h2{font-family:'Pinyon Script',cursive;font-size:56px;color:var(--rose);margin-bottom:4px}
+.done-screen .sub{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--mauve);margin-bottom:24px}
+.picks-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;width:100%;max-width:420px}
+.picks-grid img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:16px;box-shadow:0 4px 16px rgba(180,120,120,.15)}
+.picks-grid .empty{font-size:13px;color:var(--mauve);text-align:center;grid-column:1/-1;padding:40px 0}
+
+/* CHAT BUBBLE */
+.chat-fab{position:fixed;bottom:calc(env(safe-area-inset-bottom)+20px);right:20px;width:52px;height:52px;border-radius:50%;background:var(--rose);color:white;border:none;font-size:22px;cursor:pointer;box-shadow:0 4px 20px rgba(232,160,160,.4);z-index:150;display:none;align-items:center;justify-content:center;transition:transform .2s}
+.chat-fab:hover{transform:scale(1.1)}
+.chat-fab.active{display:flex}
+.chat-panel{display:none;position:fixed;bottom:calc(env(safe-area-inset-bottom)+80px);right:20px;width:min(320px,85vw);max-height:350px;background:white;border-radius:20px;box-shadow:0 8px 40px rgba(180,120,120,.2);z-index:150;flex-direction:column;overflow:hidden}
+.chat-panel.open{display:flex}
+.chat-header{padding:14px 18px;border-bottom:1px solid var(--peach);font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--mauve)}
+.chat-messages{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:8px;min-height:120px}
+.chat-msg{max-width:80%;padding:10px 14px;border-radius:16px;font-size:13px;line-height:1.4;color:var(--text)}
+.chat-msg.from-creator{background:var(--peach);align-self:flex-start;border-bottom-left-radius:4px}
+.chat-msg.from-viewer{background:var(--blush);align-self:flex-end;border-bottom-right-radius:4px}
+.chat-input-row{display:flex;padding:10px;gap:8px;border-top:1px solid var(--peach)}
+.chat-input-row input{flex:1;padding:10px 14px;border:2px solid var(--blush);border-radius:100px;font-family:'Jost',sans-serif;font-size:13px;color:var(--text);outline:none}
+.chat-input-row input:focus{border-color:var(--rose)}
+.chat-input-row button{width:38px;height:38px;border-radius:50%;background:var(--rose);border:none;color:white;font-size:16px;cursor:pointer}
+</style>
+</head>
+<body>
+
+<div class="name-entry" id="nameEntry">
+  <h2>hey there</h2>
+  <div class="sub" id="sessionLabel">loading...</div>
+  <input type="text" id="viewerName" placeholder="your name">
+  <button id="btnJoin">let's go</button>
+</div>
+
+<header>
+  <h1>delicious</h1>
+  <p id="headerSub"></p>
+</header>
+
+<div class="stack" id="stack"></div>
+
+<div class="actions" id="actions" style="display:none">
+  <button class="btn btn-skip" onclick="doSwipe('left')">🔥</button>
+  <button class="btn btn-love" onclick="doSwipe('right')">💗</button>
+</div>
+
+<div class="dots" id="dots"></div>
+
+<div class="done-screen" id="doneScreen">
+  <h2>your picks</h2>
+  <div class="sub">your taste is immaculate</div>
+  <div class="picks-grid" id="picksGrid"></div>
+</div>
+
+<button class="chat-fab" id="chatFab">💬</button>
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-header">chat with creator</div>
+  <div class="chat-messages" id="chatMessages"></div>
+  <div class="chat-input-row">
+    <input type="text" id="chatInput" placeholder="say something...">
+    <button id="chatSend">&#10148;</button>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const sessionId = location.pathname.split('/s/')[1];
+let session = null;
+let viewerId = null;
+let viewerNameStr = '';
+let current = 0;
+let isDragging = false, startX = 0, startY = 0, currentX = 0;
+let topCard = null;
+let picks = [];
+const socket = io();
+
+async function loadSession() {
+  const res = await fetch(`/api/sessions/${sessionId}`);
+  if (!res.ok) { document.getElementById('sessionLabel').textContent = 'session not found'; return; }
+  session = await res.json();
+  document.getElementById('sessionLabel').textContent = session.name;
+}
+
+document.getElementById('btnJoin').addEventListener('click', async () => {
+  const name = document.getElementById('viewerName').value.trim() || 'Anonymous';
+  const res = await fetch(`/api/sessions/${sessionId}/join`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name })
+  });
+  const data = await res.json();
+  viewerId = data.viewerId;
+  viewerNameStr = data.viewerName;
+  socket.emit('join-viewer', viewerId);
+  document.getElementById('nameEntry').classList.add('hidden');
+  document.getElementById('headerSub').textContent = session.name;
+  document.getElementById('actions').style.display = 'flex';
+  document.getElementById('chatFab').classList.add('active');
+  buildStack();
+});
+
+function buildStack() {
+  const stack = document.getElementById('stack');
+  const dotsEl = document.getElementById('dots');
+  stack.innerHTML = '';
+  dotsEl.innerHTML = '';
+  const total = session.photos.length;
+  const padLen = String(total).length;
+
+  session.photos.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'card' + (i === 0 ? ' top' : '');
+    card.dataset.index = i;
+    const label = String(i + 1).padStart(2, '0');
+    card.innerHTML = `
+      <img src="${p.url}" alt="photo ${label}" draggable="false">
+      <div class="card-overlay"></div>
+      <div class="card-num">${label} / ${String(total).padStart(2, '0')}</div>
+      <span class="stamp love">love it</span>
+      <span class="stamp nope">next</span>
+    `;
+    stack.appendChild(card);
+
+    const dot = document.createElement('div');
+    dot.className = 'dot' + (i === 0 ? ' active' : '');
+    dotsEl.appendChild(dot);
+  });
+
+  attachDrag();
+}
+
+function attachDrag() {
+  topCard = document.querySelector('.card.top');
+  if (!topCard) return;
+  topCard.addEventListener('mousedown', onStart);
+  topCard.addEventListener('touchstart', onStart, { passive: true });
+}
+
+function onStart(e) {
+  isDragging = true;
+  const pt = e.touches ? e.touches[0] : e;
+  startX = pt.clientX; startY = pt.clientY;
+  topCard.style.transition = 'none';
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('mouseup', onEnd);
+  window.addEventListener('touchmove', onMove, { passive: false });
+  window.addEventListener('touchend', onEnd);
+}
+
+function onMove(e) {
+  if (!isDragging) return;
+  if (e.cancelable) e.preventDefault();
+  const pt = e.touches ? e.touches[0] : e;
+  currentX = pt.clientX - startX;
+  const currentY = pt.clientY - startY;
+  topCard.style.transform = `translate(${currentX}px,${currentY * .3}px) rotate(${currentX * .06}deg)`;
+  const ratio = Math.min(Math.abs(currentX) / 80, 1);
+  topCard.querySelector('.stamp.love').style.opacity = currentX > 0 ? ratio : 0;
+  topCard.querySelector('.stamp.nope').style.opacity = currentX < 0 ? ratio : 0;
+}
+
+function onEnd() {
+  if (!isDragging) return;
+  isDragging = false;
+  window.removeEventListener('mousemove', onMove);
+  window.removeEventListener('mouseup', onEnd);
+  window.removeEventListener('touchmove', onMove);
+  window.removeEventListener('touchend', onEnd);
+  if (Math.abs(currentX) > 90) {
+    flyOut(currentX > 0 ? 'right' : 'left');
+  } else {
+    topCard.style.transition = 'transform .4s cubic-bezier(.175,.885,.32,1.275)';
+    topCard.style.transform = '';
+    topCard.querySelector('.stamp.love').style.opacity = 0;
+    topCard.querySelector('.stamp.nope').style.opacity = 0;
+  }
+  currentX = 0;
+}
+
+function flyOut(dir) {
+  const liked = dir === 'right';
+  const photoIndex = current;
+  if (liked) picks.push(photoIndex);
+
+  fetch(`/api/sessions/${sessionId}/swipe`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ viewerId, photoIndex, liked })
+  });
+
+  const xOut = liked ? 800 : -800;
+  topCard.style.transition = 'transform .4s ease, opacity .4s ease';
+  topCard.style.transform = `translate(${xOut}px,-60px) rotate(${liked ? 30 : -30}deg)`;
+  topCard.style.opacity = '0';
+
+  setTimeout(() => {
+    topCard.remove();
+    current++;
+    updateDots();
+    if (current >= session.photos.length) {
+      showDone();
+    } else {
+      const newTop = document.querySelector('.card');
+      if (newTop) {
+        newTop.style.transition = 'transform .35s ease';
+        newTop.classList.add('top');
+        setTimeout(() => newTop.style.transition = '', 350);
+      }
+      attachDrag();
+    }
+  }, 380);
+}
+
+function doSwipe(dir) {
+  if (!topCard) return;
+  flyOut(dir);
+}
+
+function updateDots() {
+  document.querySelectorAll('.dot').forEach((d, i) => {
+    d.classList.toggle('active', i === current);
+    if (i < current) d.classList.add('done');
+  });
+}
+
+function showDone() {
+  document.getElementById('actions').style.display = 'none';
+  const doneScreen = document.getElementById('doneScreen');
+  doneScreen.classList.add('show');
+  const grid = document.getElementById('picksGrid');
+  grid.innerHTML = '';
+  if (picks.length === 0) {
+    grid.innerHTML = '<div class="empty">you didn\'t pick any — that\'s okay too</div>';
+  } else {
+    picks.forEach(idx => {
+      const img = document.createElement('img');
+      img.src = session.photos[idx].url;
+      grid.appendChild(img);
+    });
+  }
+}
+
+// Chat
+const chatFab = document.getElementById('chatFab');
+const chatPanel = document.getElementById('chatPanel');
+const chatMessages = document.getElementById('chatMessages');
+const chatInput = document.getElementById('chatInput');
+const chatSend = document.getElementById('chatSend');
+
+chatFab.addEventListener('click', () => chatPanel.classList.toggle('open'));
+
+chatSend.addEventListener('click', sendChat);
+chatInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendChat(); });
+
+function sendChat() {
+  const text = chatInput.value.trim();
+  if (!text) return;
+  chatInput.value = '';
+  fetch(`/api/sessions/${sessionId}/chat`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ viewerId, sender: 'viewer', text })
+  });
+  appendChatMsg('viewer', text);
+}
+
+function appendChatMsg(sender, text) {
+  const div = document.createElement('div');
+  div.className = `chat-msg ${sender === 'viewer' ? 'from-viewer' : 'from-creator'}`;
+  div.textContent = text;
+  chatMessages.appendChild(div);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+socket.on('chat-message', (data) => {
+  if (data.viewerId === viewerId && data.sender !== 'viewer') {
+    appendChatMsg('creator', data.text);
+    if (!chatPanel.classList.contains('open')) chatFab.style.animation = 'none';
+    chatFab.offsetHeight;
+    chatFab.style.animation = '';
+  }
+});
+
+loadSession();
+</script>
+</body>
+</html>
