@@ -29,8 +29,8 @@ header p{font-size:12px;letter-spacing:4px;text-transform:uppercase;color:var(--
 
 .preview-grid{position:relative;z-index:2;display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;width:100%;max-width:420px;margin-top:16px}
 .preview-grid img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:12px;box-shadow:0 2px 8px rgba(180,120,120,.12)}
-.preview-grid .remove{position:absolute;top:-6px;right:-6px;width:20px;height:20px;background:var(--rose);color:white;border:none;border-radius:50%;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
 .preview-item{position:relative}
+.preview-item .remove{position:absolute;top:-6px;right:-6px;width:20px;height:20px;background:var(--rose);color:white;border:none;border-radius:50%;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
 
 .form-section{position:relative;z-index:2;width:100%;max-width:420px;margin-top:24px;display:flex;flex-direction:column;gap:14px}
 .form-section input{width:100%;padding:14px 18px;border:2px solid var(--blush);border-radius:16px;background:rgba(255,255,255,.7);font-family:'Jost',sans-serif;font-size:14px;color:var(--text);outline:none;transition:border-color .2s}
@@ -42,22 +42,21 @@ header p{font-size:12px;letter-spacing:4px;text-transform:uppercase;color:var(--
 .btn-create:active{transform:scale(.98)}
 .btn-create:disabled{opacity:.5;cursor:not-allowed;transform:none}
 
-.share-modal{display:none;position:fixed;inset:0;z-index:200;background:rgba(255,248,243,.95);backdrop-filter:blur(12px);flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px;text-align:center}
-.share-modal.show{display:flex}
-.share-modal h2{font-family:'Pinyon Script',cursive;font-size:52px;color:var(--rose)}
-.share-modal .link-box{background:white;padding:14px 20px;border-radius:16px;font-size:14px;color:var(--text);word-break:break-all;box-shadow:0 2px 12px rgba(180,120,120,.1);max-width:360px;width:100%}
-.share-modal .btn-copy{margin-top:8px;padding:14px 28px;background:var(--blush);border:none;border-radius:100px;font-family:'Jost',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--text);cursor:pointer;transition:transform .2s}
-.share-modal .btn-copy:hover{transform:scale(1.05)}
-.share-modal .btn-wa{margin-top:4px;padding:14px 28px;background:#25d366;border:none;border-radius:100px;font-family:'Jost',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:white;cursor:pointer;transition:transform .2s}
-.share-modal .btn-wa:hover{transform:scale(1.05)}
-.share-modal .btn-dash{margin-top:12px;padding:12px 24px;background:transparent;border:2px solid var(--rose);border-radius:100px;font-family:'Jost',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--rose);cursor:pointer;transition:transform .2s}
-.share-modal .btn-dash:hover{transform:scale(1.05)}
-.share-modal .sub{font-size:12px;color:var(--mauve);letter-spacing:2px;text-transform:uppercase;margin-top:4px}
-
 .progress-bar{display:none;width:100%;max-width:420px;height:4px;background:var(--blush);border-radius:4px;margin-top:16px;overflow:hidden;position:relative;z-index:2}
 .progress-bar .fill{height:100%;background:var(--rose);border-radius:4px;transition:width .3s;width:0%}
 
 .count-label{position:relative;z-index:2;font-size:12px;color:var(--mauve);letter-spacing:2px;margin-top:8px;text-transform:uppercase}
+
+.share-modal{display:none;position:fixed;inset:0;z-index:200;background:rgba(255,248,243,.95);backdrop-filter:blur(12px);flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px;text-align:center}
+.share-modal.show{display:flex}
+.share-modal h2{font-family:'Pinyon Script',cursive;font-size:52px;color:var(--rose)}
+.share-modal .link-box{background:white;padding:14px 20px;border-radius:16px;font-size:14px;color:var(--text);word-break:break-all;box-shadow:0 2px 12px rgba(180,120,120,.1);max-width:360px;width:100%}
+.share-modal .sub{font-size:12px;color:var(--mauve);letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+.share-modal button{padding:14px 28px;border:none;border-radius:100px;font-family:'Jost',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:transform .2s}
+.share-modal button:hover{transform:scale(1.05)}
+.share-modal .btn-copy{background:var(--blush);color:var(--text);margin-top:8px}
+.share-modal .btn-wa{background:#25d366;color:white;margin-top:4px}
+.share-modal .btn-dash{background:transparent;border:2px solid var(--rose);color:var(--rose);margin-top:12px}
 </style>
 </head>
 <body>
@@ -87,7 +86,6 @@ header p{font-size:12px;letter-spacing:4px;text-transform:uppercase;color:var(--
 </div>
 
 <div class="progress-bar" id="progressBar"><div class="fill" id="progressFill"></div></div>
-
 <button class="btn-create" id="btnCreate" style="display:none">create session</button>
 
 <div class="share-modal" id="shareModal">
@@ -99,6 +97,8 @@ header p{font-size:12px;letter-spacing:4px;text-transform:uppercase;color:var(--
   <button class="btn-dash" id="btnDash">open dashboard</button>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/js/config.js"></script>
 <script>
 const uploadArea = document.getElementById('uploadArea');
 const fileInput = document.getElementById('fileInput');
@@ -120,7 +120,7 @@ uploadArea.addEventListener('drop', e => {
   uploadArea.classList.remove('dragover');
   addFiles(e.dataTransfer.files);
 });
-fileInput.addEventListener('change', () => addFiles(fileInput.files));
+fileInput.addEventListener('change', () => { addFiles(fileInput.files); fileInput.value = ''; });
 
 function addFiles(fileList) {
   const newFiles = Array.from(fileList).filter(f => f.type.startsWith('image/'));
@@ -143,16 +143,9 @@ function renderPreviews() {
     item.appendChild(rm);
     previewGrid.appendChild(item);
   });
-
   countLabel.textContent = selectedFiles.length > 0 ? `${selectedFiles.length} photo${selectedFiles.length > 1 ? 's' : ''} selected` : '';
-
-  if (selectedFiles.length > 0) {
-    formSection.style.display = 'flex';
-    btnCreate.style.display = 'block';
-  } else {
-    formSection.style.display = 'none';
-    btnCreate.style.display = 'none';
-  }
+  formSection.style.display = selectedFiles.length > 0 ? 'flex' : 'none';
+  btnCreate.style.display = selectedFiles.length > 0 ? 'block' : 'none';
 }
 
 btnCreate.addEventListener('click', async () => {
@@ -161,43 +154,50 @@ btnCreate.addEventListener('click', async () => {
   btnCreate.textContent = 'uploading...';
   progressBar.style.display = 'block';
 
-  const formData = new FormData();
-  formData.append('name', document.getElementById('sessionName').value || 'My Shoot');
-  formData.append('creator', document.getElementById('creatorName').value || '');
-  selectedFiles.forEach(f => formData.append('photos', f));
+  const sessionId = generateId(8);
+  const creatorToken = generateId(16);
+  const sessionName = document.getElementById('sessionName').value || 'My Shoot';
+  const creatorName = document.getElementById('creatorName').value || '';
 
   try {
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', '/api/sessions');
-    xhr.upload.onprogress = (e) => {
-      if (e.lengthComputable) progressFill.style.width = Math.round((e.loaded / e.total) * 100) + '%';
-    };
-    xhr.onload = () => {
-      if (xhr.status === 200) {
-        const data = JSON.parse(xhr.responseText);
-        localStorage.setItem(`delicious-${data.id}`, data.creatorToken);
-        showShareModal(data);
-      } else {
-        alert('Upload failed. Please try again.');
-        btnCreate.disabled = false;
-        btnCreate.textContent = 'create session';
-      }
-    };
-    xhr.onerror = () => {
-      alert('Network error. Please try again.');
-      btnCreate.disabled = false;
-      btnCreate.textContent = 'create session';
-    };
-    xhr.send(formData);
+    const { error: sessionErr } = await supabase.from('sessions').insert({
+      id: sessionId, name: sessionName, creator_name: creatorName, creator_token: creatorToken
+    });
+    if (sessionErr) throw sessionErr;
+
+    const photos = [];
+    for (let i = 0; i < selectedFiles.length; i++) {
+      const blob = await compressImage(selectedFiles[i]);
+      const filename = `${sessionId}/${String(i + 1).padStart(2, '0')}.jpg`;
+
+      const { error: uploadErr } = await supabase.storage
+        .from('photos')
+        .upload(filename, blob, { contentType: 'image/jpeg', upsert: true });
+      if (uploadErr) throw uploadErr;
+
+      const { data: urlData } = supabase.storage.from('photos').getPublicUrl(filename);
+
+      photos.push({ session_id: sessionId, photo_index: i, storage_path: filename, url: urlData.publicUrl });
+
+      progressFill.style.width = Math.round(((i + 1) / selectedFiles.length) * 100) + '%';
+    }
+
+    const { error: photosErr } = await supabase.from('session_photos').insert(photos);
+    if (photosErr) throw photosErr;
+
+    localStorage.setItem(`delicious-${sessionId}`, creatorToken);
+    showShareModal(sessionId);
   } catch (err) {
-    alert('Upload failed');
+    console.error('Upload error:', err);
+    alert('Upload failed: ' + (err.message || 'Unknown error'));
     btnCreate.disabled = false;
     btnCreate.textContent = 'create session';
+    progressBar.style.display = 'none';
   }
 });
 
-function showShareModal(data) {
-  const fullUrl = `${location.origin}/s/${data.id}`;
+function showShareModal(sessionId) {
+  const fullUrl = `${location.origin}/s/${sessionId}`;
   document.getElementById('shareLink').textContent = fullUrl;
   shareModal.classList.add('show');
 
@@ -207,14 +207,11 @@ function showShareModal(data) {
       setTimeout(() => document.getElementById('btnCopy').textContent = 'copy link', 2000);
     });
   };
-
   document.getElementById('btnWa').onclick = () => {
-    const msg = encodeURIComponent(`pick your faves from my shoot \u{1F497} ${fullUrl}`);
-    window.open(`https://wa.me/?text=${msg}`, '_blank');
+    window.open(`https://wa.me/?text=${encodeURIComponent('pick your faves from my shoot \u{1F497} ' + fullUrl)}`, '_blank');
   };
-
   document.getElementById('btnDash').onclick = () => {
-    window.location.href = `/dashboard/${data.id}`;
+    window.location.href = `/dashboard/${sessionId}`;
   };
 }
 </script>

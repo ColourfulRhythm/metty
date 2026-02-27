@@ -17,7 +17,6 @@ header{position:relative;z-index:2;padding:28px 0 4px;text-align:center}
 header h1{font-family:'Pinyon Script',cursive;font-size:clamp(44px,12vw,72px);color:var(--rose);line-height:1;text-shadow:2px 3px 12px rgba(232,160,160,.3)}
 header p{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--mauve);font-weight:300;margin-top:2px}
 
-/* NAME ENTRY */
 .name-entry{position:fixed;inset:0;z-index:200;background:var(--cream);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px;text-align:center}
 .name-entry.hidden{display:none}
 .name-entry h2{font-family:'Pinyon Script',cursive;font-size:52px;color:var(--rose)}
@@ -28,7 +27,6 @@ header p{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--
 .name-entry button{padding:14px 36px;background:var(--rose);border:none;border-radius:100px;font-family:'Jost',sans-serif;font-size:14px;letter-spacing:3px;text-transform:uppercase;color:white;cursor:pointer;transition:transform .2s;box-shadow:0 6px 24px rgba(232,160,160,.3)}
 .name-entry button:hover{transform:scale(1.05)}
 
-/* CARD STACK */
 .stack{position:relative;z-index:2;width:var(--card-w);height:var(--card-h);margin-top:16px}
 .card{position:absolute;inset:0;border-radius:28px;overflow:hidden;cursor:grab;user-select:none;touch-action:none;box-shadow:0 12px 40px rgba(180,120,120,.18),0 2px 8px rgba(180,120,120,.1);will-change:transform}
 .card:active{cursor:grabbing}
@@ -50,12 +48,11 @@ header p{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--
 .btn-skip{background:white}
 .btn-love{background:var(--blush);width:68px;height:68px;font-size:26px}
 
-.dots{position:relative;z-index:2;display:flex;gap:7px;margin-top:16px}
+.dots{position:relative;z-index:2;display:flex;gap:7px;margin-top:16px;flex-wrap:wrap;justify-content:center;max-width:90vw}
 .dot{width:7px;height:7px;border-radius:50%;background:var(--blush);transition:background .3s,transform .3s}
 .dot.active{background:var(--rose);transform:scale(1.4)}
 .dot.done{background:var(--rose);opacity:.5}
 
-/* DONE SCREEN */
 .done-screen{display:none;position:fixed;inset:0;z-index:100;background:var(--cream);flex-direction:column;align-items:center;overflow-y:auto;padding:40px 20px calc(env(safe-area-inset-bottom)+40px)}
 .done-screen.show{display:flex}
 .done-screen h2{font-family:'Pinyon Script',cursive;font-size:56px;color:var(--rose);margin-bottom:4px}
@@ -64,7 +61,6 @@ header p{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--
 .picks-grid img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:16px;box-shadow:0 4px 16px rgba(180,120,120,.15)}
 .picks-grid .empty{font-size:13px;color:var(--mauve);text-align:center;grid-column:1/-1;padding:40px 0}
 
-/* CHAT BUBBLE */
 .chat-fab{position:fixed;bottom:calc(env(safe-area-inset-bottom)+20px);right:20px;width:52px;height:52px;border-radius:50%;background:var(--rose);color:white;border:none;font-size:22px;cursor:pointer;box-shadow:0 4px 20px rgba(232,160,160,.4);z-index:150;display:none;align-items:center;justify-content:center;transition:transform .2s}
 .chat-fab:hover{transform:scale(1.1)}
 .chat-fab.active{display:flex}
@@ -120,41 +116,41 @@ header p{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--
   </div>
 </div>
 
-<script src="/socket.io/socket.io.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/js/config.js"></script>
 <script>
 const sessionId = location.pathname.split('/s/')[1];
-let session = null;
+let photos = [];
 let viewerId = null;
 let viewerNameStr = '';
 let current = 0;
 let isDragging = false, startX = 0, startY = 0, currentX = 0;
 let topCard = null;
 let picks = [];
-const socket = io();
 
 async function loadSession() {
-  const res = await fetch(`/api/sessions/${sessionId}`);
-  if (!res.ok) { document.getElementById('sessionLabel').textContent = 'session not found'; return; }
-  session = await res.json();
+  const { data: session, error } = await supabase.from('sessions').select('*').eq('id', sessionId).single();
+  if (error || !session) { document.getElementById('sessionLabel').textContent = 'session not found'; return; }
+
+  const { data: photoData } = await supabase.from('session_photos').select('*').eq('session_id', sessionId).order('photo_index');
+  photos = photoData || [];
   document.getElementById('sessionLabel').textContent = session.name;
 }
 
 document.getElementById('btnJoin').addEventListener('click', async () => {
   const name = document.getElementById('viewerName').value.trim() || 'Anonymous';
-  const res = await fetch(`/api/sessions/${sessionId}/join`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name })
-  });
-  const data = await res.json();
-  viewerId = data.viewerId;
-  viewerNameStr = data.viewerName;
-  socket.emit('join-viewer', viewerId);
+  viewerId = generateId(8);
+  viewerNameStr = name;
+
+  const { error } = await supabase.from('viewers').insert({ id: viewerId, session_id: sessionId, name });
+  if (error) { console.error(error); alert('Could not join'); return; }
+
   document.getElementById('nameEntry').classList.add('hidden');
-  document.getElementById('headerSub').textContent = session.name;
+  document.getElementById('headerSub').textContent = document.getElementById('sessionLabel').textContent;
   document.getElementById('actions').style.display = 'flex';
   document.getElementById('chatFab').classList.add('active');
   buildStack();
+  subscribeToChatMessages();
 });
 
 function buildStack() {
@@ -162,10 +158,9 @@ function buildStack() {
   const dotsEl = document.getElementById('dots');
   stack.innerHTML = '';
   dotsEl.innerHTML = '';
-  const total = session.photos.length;
-  const padLen = String(total).length;
+  const total = photos.length;
 
-  session.photos.forEach((p, i) => {
+  photos.forEach((p, i) => {
     const card = document.createElement('div');
     card.className = 'card' + (i === 0 ? ' top' : '');
     card.dataset.index = i;
@@ -183,7 +178,6 @@ function buildStack() {
     dot.className = 'dot' + (i === 0 ? ' active' : '');
     dotsEl.appendChild(dot);
   });
-
   attachDrag();
 }
 
@@ -240,11 +234,9 @@ function flyOut(dir) {
   const photoIndex = current;
   if (liked) picks.push(photoIndex);
 
-  fetch(`/api/sessions/${sessionId}/swipe`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ viewerId, photoIndex, liked })
-  });
+  supabase.from('swipes').insert({
+    viewer_id: viewerId, session_id: sessionId, photo_index: photoIndex, liked
+  }).then();
 
   const xOut = liked ? 800 : -800;
   topCard.style.transition = 'transform .4s ease, opacity .4s ease';
@@ -255,7 +247,7 @@ function flyOut(dir) {
     topCard.remove();
     current++;
     updateDots();
-    if (current >= session.photos.length) {
+    if (current >= photos.length) {
       showDone();
     } else {
       const newTop = document.querySelector('.card');
@@ -269,10 +261,7 @@ function flyOut(dir) {
   }, 380);
 }
 
-function doSwipe(dir) {
-  if (!topCard) return;
-  flyOut(dir);
-}
+function doSwipe(dir) { if (topCard) flyOut(dir); }
 
 function updateDots() {
   document.querySelectorAll('.dot').forEach((d, i) => {
@@ -292,7 +281,7 @@ function showDone() {
   } else {
     picks.forEach(idx => {
       const img = document.createElement('img');
-      img.src = session.photos[idx].url;
+      img.src = photos[idx].url;
       grid.appendChild(img);
     });
   }
@@ -306,20 +295,17 @@ const chatInput = document.getElementById('chatInput');
 const chatSend = document.getElementById('chatSend');
 
 chatFab.addEventListener('click', () => chatPanel.classList.toggle('open'));
-
 chatSend.addEventListener('click', sendChat);
 chatInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendChat(); });
 
-function sendChat() {
+async function sendChat() {
   const text = chatInput.value.trim();
-  if (!text) return;
+  if (!text || !viewerId) return;
   chatInput.value = '';
-  fetch(`/api/sessions/${sessionId}/chat`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ viewerId, sender: 'viewer', text })
-  });
   appendChatMsg('viewer', text);
+  await supabase.from('chat_messages').insert({
+    session_id: sessionId, viewer_id: viewerId, sender: 'viewer', text
+  });
 }
 
 function appendChatMsg(sender, text) {
@@ -330,14 +316,17 @@ function appendChatMsg(sender, text) {
   chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-socket.on('chat-message', (data) => {
-  if (data.viewerId === viewerId && data.sender !== 'viewer') {
-    appendChatMsg('creator', data.text);
-    if (!chatPanel.classList.contains('open')) chatFab.style.animation = 'none';
-    chatFab.offsetHeight;
-    chatFab.style.animation = '';
-  }
-});
+function subscribeToChatMessages() {
+  supabase.channel('chat-' + viewerId)
+    .on('postgres_changes', {
+      event: 'INSERT', schema: 'public', table: 'chat_messages',
+      filter: `viewer_id=eq.${viewerId}`
+    }, (payload) => {
+      const msg = payload.new;
+      if (msg.sender === 'creator') appendChatMsg('creator', msg.text);
+    })
+    .subscribe();
+}
 
 loadSession();
 </script>

@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    { "source": "/s/:id", "destination": "/swipe.html" },
+    { "source": "/dashboard/:id", "destination": "/dashboard.html" },
+    { "source": "/js/:path*", "destination": "/js/:path*" }
+  ],
+  "outputDirectory": "public"
+}
