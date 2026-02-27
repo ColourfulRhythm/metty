@@ -114,7 +114,7 @@ async function loadDashboard() {
     return;
   }
 
-  const { data: sess, error } = await supabase.from('sessions').select('*').eq('id', sessionId).single();
+  const { data: sess, error } = await db.from('sessions').select('*').eq('id', sessionId).single();
   if (error || !sess) {
     document.getElementById('viewersList').innerHTML = '<div class="empty-state">session not found</div>';
     return;
@@ -126,13 +126,13 @@ async function loadDashboard() {
   session = sess;
   document.getElementById('sessionName').textContent = session.name;
 
-  const { data: photoData } = await supabase.from('session_photos').select('*').eq('session_id', sessionId).order('photo_index');
+  const { data: photoData } = await db.from('session_photos').select('*').eq('session_id', sessionId).order('photo_index');
   photos = photoData || [];
 
-  const { data: viewerData } = await supabase.from('viewers').select('*').eq('session_id', sessionId).order('joined_at');
+  const { data: viewerData } = await db.from('viewers').select('*').eq('session_id', sessionId).order('joined_at');
   viewers = viewerData || [];
 
-  const { data: swipeData } = await supabase.from('swipes').select('*').eq('session_id', sessionId);
+  const { data: swipeData } = await db.from('swipes').select('*').eq('session_id', sessionId);
   (swipeData || []).forEach(s => {
     if (!swipesMap[s.viewer_id]) swipesMap[s.viewer_id] = [];
     swipesMap[s.viewer_id].push(s);
@@ -206,7 +206,7 @@ function escHtml(s) { const d = document.createElement('div'); d.textContent = s
 
 // Realtime subscriptions
 function subscribeToRealtime() {
-  supabase.channel('dashboard-' + sessionId)
+  db.channel('dashboard-' + sessionId)
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'viewers', filter: `session_id=eq.${sessionId}` }, (payload) => {
       viewers.push(payload.new);
       renderAll();
@@ -235,7 +235,7 @@ async function openChat(vId) {
   const msgs = document.getElementById('chatModalMessages');
   msgs.innerHTML = '';
 
-  const { data: chatData } = await supabase.from('chat_messages').select('*').eq('viewer_id', vId).order('created_at');
+  const { data: chatData } = await db.from('chat_messages').select('*').eq('viewer_id', vId).order('created_at');
   (chatData || []).forEach(m => appendModalMsg(m.sender, m.text));
 
   document.getElementById('chatModal').classList.add('open');
@@ -257,7 +257,7 @@ async function sendModalChat() {
   if (!text) return;
   input.value = '';
   appendModalMsg('creator', text);
-  await supabase.from('chat_messages').insert({
+  await db.from('chat_messages').insert({
     session_id: sessionId, viewer_id: activeViewerId, sender: 'creator', text
   });
 }

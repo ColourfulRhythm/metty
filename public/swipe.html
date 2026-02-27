@@ -129,10 +129,10 @@ let topCard = null;
 let picks = [];
 
 async function loadSession() {
-  const { data: session, error } = await supabase.from('sessions').select('*').eq('id', sessionId).single();
+  const { data: session, error } = await db.from('sessions').select('*').eq('id', sessionId).single();
   if (error || !session) { document.getElementById('sessionLabel').textContent = 'session not found'; return; }
 
-  const { data: photoData } = await supabase.from('session_photos').select('*').eq('session_id', sessionId).order('photo_index');
+  const { data: photoData } = await db.from('session_photos').select('*').eq('session_id', sessionId).order('photo_index');
   photos = photoData || [];
   document.getElementById('sessionLabel').textContent = session.name;
 }
@@ -142,7 +142,7 @@ document.getElementById('btnJoin').addEventListener('click', async () => {
   viewerId = generateId(8);
   viewerNameStr = name;
 
-  const { error } = await supabase.from('viewers').insert({ id: viewerId, session_id: sessionId, name });
+  const { error } = await db.from('viewers').insert({ id: viewerId, session_id: sessionId, name });
   if (error) { console.error(error); alert('Could not join'); return; }
 
   document.getElementById('nameEntry').classList.add('hidden');
@@ -234,7 +234,7 @@ function flyOut(dir) {
   const photoIndex = current;
   if (liked) picks.push(photoIndex);
 
-  supabase.from('swipes').insert({
+  db.from('swipes').insert({
     viewer_id: viewerId, session_id: sessionId, photo_index: photoIndex, liked
   }).then();
 
@@ -303,7 +303,7 @@ async function sendChat() {
   if (!text || !viewerId) return;
   chatInput.value = '';
   appendChatMsg('viewer', text);
-  await supabase.from('chat_messages').insert({
+  await db.from('chat_messages').insert({
     session_id: sessionId, viewer_id: viewerId, sender: 'viewer', text
   });
 }
@@ -317,7 +317,7 @@ function appendChatMsg(sender, text) {
 }
 
 function subscribeToChatMessages() {
-  supabase.channel('chat-' + viewerId)
+  db.channel('chat-' + viewerId)
     .on('postgres_changes', {
       event: 'INSERT', schema: 'public', table: 'chat_messages',
       filter: `viewer_id=eq.${viewerId}`

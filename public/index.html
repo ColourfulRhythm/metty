@@ -160,7 +160,7 @@ btnCreate.addEventListener('click', async () => {
   const creatorName = document.getElementById('creatorName').value || '';
 
   try {
-    const { error: sessionErr } = await supabase.from('sessions').insert({
+    const { error: sessionErr } = await db.from('sessions').insert({
       id: sessionId, name: sessionName, creator_name: creatorName, creator_token: creatorToken
     });
     if (sessionErr) throw sessionErr;
@@ -170,19 +170,19 @@ btnCreate.addEventListener('click', async () => {
       const blob = await compressImage(selectedFiles[i]);
       const filename = `${sessionId}/${String(i + 1).padStart(2, '0')}.jpg`;
 
-      const { error: uploadErr } = await supabase.storage
+      const { error: uploadErr } = await db.storage
         .from('photos')
         .upload(filename, blob, { contentType: 'image/jpeg', upsert: true });
       if (uploadErr) throw uploadErr;
 
-      const { data: urlData } = supabase.storage.from('photos').getPublicUrl(filename);
+      const { data: urlData } = db.storage.from('photos').getPublicUrl(filename);
 
       photos.push({ session_id: sessionId, photo_index: i, storage_path: filename, url: urlData.publicUrl });
 
       progressFill.style.width = Math.round(((i + 1) / selectedFiles.length) * 100) + '%';
     }
 
-    const { error: photosErr } = await supabase.from('session_photos').insert(photos);
+    const { error: photosErr } = await db.from('session_photos').insert(photos);
     if (photosErr) throw photosErr;
 
     localStorage.setItem(`delicious-${sessionId}`, creatorToken);

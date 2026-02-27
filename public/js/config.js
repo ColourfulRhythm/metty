@@ -1,9 +1,9 @@
 // Replace these with your Supabase project values
 // Find them at: supabase.com → your project → Settings → API
-const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const SUPABASE_URL = 'https://yxtuhlfldondwqfvgydm.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4dHVobGZsZG9uZHdxZnZneWRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMjQ4ODAsImV4cCI6MjA4NzgwMDg4MH0.eAZ1lWwkJvuN_eaBL1wlN18qycW6AvmdqqSchchDcaA';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 function generateId(len = 8) {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
