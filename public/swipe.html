@@ -140,7 +140,8 @@ async function loadSession() {
 }
 
 document.getElementById('btnJoin').addEventListener('click', async () => {
-  const name = document.getElementById('viewerName').value.trim() || 'Anonymous';
+  const name = document.getElementById('viewerName').value.trim();
+  if (!name) { document.getElementById('viewerName').focus(); return; }
   viewerId = generateId(8);
   viewerNameStr = name;
 
