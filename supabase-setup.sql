@@ -72,6 +72,12 @@ alter publication supabase_realtime add table swipes;
 alter publication supabase_realtime add table viewers;
 alter publication supabase_realtime add table chat_messages;
 
+-- 4. REPLICA IDENTITY (required for realtime filters to work)
+
+alter table swipes replica identity full;
+alter table viewers replica identity full;
+alter table chat_messages replica identity full;
+
 -- 4. STORAGE: Create a public bucket called "photos"
 -- Do this in the Supabase Dashboard → Storage → New Bucket
 -- Name: photos
