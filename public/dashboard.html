@@ -10,7 +10,7 @@
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--blush:#f7c5c5;--rose:#e8a0a0;--cream:#fff8f3;--peach:#fde8d8;--mauve:#c9a0a0;--text:#7a5555;--deep:#5a3e3e}
 html{overflow-x:hidden}
-body{background:var(--cream);font-family:'Jost',sans-serif;min-height:100dvh;padding:0 24px calc(env(safe-area-inset-bottom)+24px);position:relative;width:100%;max-width:540px;margin:0 auto}
+body{background:var(--cream);font-family:'Jost',sans-serif;min-height:100dvh;padding:0 max(24px,env(safe-area-inset-left)) calc(env(safe-area-inset-bottom)+24px) max(24px,env(safe-area-inset-right));position:relative;width:100%;max-width:540px;margin:0 auto}
 body::before,body::after{content:'';position:fixed;border-radius:50%;filter:blur(80px);opacity:.35;pointer-events:none;z-index:0}
 body::before{width:400px;height:400px;background:var(--blush);top:-100px;left:-100px}
 body::after{width:350px;height:350px;background:var(--peach);bottom:-80px;right:-80px}
@@ -27,7 +27,7 @@ header .session-name{font-size:12px;letter-spacing:3px;text-transform:uppercase;
 
 .section-title{position:relative;z-index:2;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--mauve);margin:24px 0 12px;font-weight:400}
 
-.leaderboard{position:relative;z-index:2;display:flex;gap:10px;overflow-x:auto;padding:0 0 8px;-webkit-overflow-scrolling:touch}
+.leaderboard{position:relative;z-index:2;display:flex;gap:10px;overflow-x:auto;padding:0 4px 8px;-webkit-overflow-scrolling:touch}
 .leaderboard::-webkit-scrollbar{display:none}
 .leader-card{flex:0 0 100px;text-align:center}
 .leader-card img{width:100px;height:130px;object-fit:cover;border-radius:16px;box-shadow:0 4px 16px rgba(180,120,120,.15)}

@@ -9,106 +9,46 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--blush:#f7c5c5;--rose:#e8a0a0;--cream:#fff8f3;--peach:#fde8d8;--mauve:#c9a0a0;--text:#7a5555;--deep:#5a3e3e}
-body{background:var(--cream);font-family:'Jost',sans-serif;min-height:100dvh;overflow-x:hidden;position:relative;width:100%}
+body{background:var(--cream);font-family:'Jost',sans-serif;min-height:100dvh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden;position:relative;padding:0 max(24px,env(safe-area-inset-left)) calc(env(safe-area-inset-bottom)+24px) max(24px,env(safe-area-inset-right));width:100%}
 html{overflow-x:hidden}
 body::before,body::after{content:'';position:fixed;border-radius:50%;filter:blur(80px);opacity:.4;pointer-events:none;z-index:0}
 body::before{width:400px;height:400px;background:var(--blush);top:-100px;left:-100px}
 body::after{width:350px;height:350px;background:var(--peach);bottom:-80px;right:-80px}
 
-.page{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;padding:0 20px calc(env(safe-area-inset-bottom)+40px);width:100%}
-
-header{padding:40px 0 8px;text-align:center;width:100%}
-header h1{font-family:'Pinyon Script',cursive;font-size:clamp(52px,14vw,88px);color:var(--rose);line-height:1;text-shadow:2px 3px 12px rgba(232,160,160,.3);letter-spacing:2px}
+header{position:relative;z-index:2;padding:32px 0 8px;text-align:center;width:100%}
+header h1{font-family:'Pinyon Script',cursive;font-size:clamp(48px,13vw,80px);color:var(--rose);line-height:1;text-shadow:2px 3px 12px rgba(232,160,160,.3);letter-spacing:2px}
 header p{font-size:12px;letter-spacing:4px;text-transform:uppercase;color:var(--mauve);font-weight:300;margin-top:4px}
 
-.hero{text-align:center;margin-top:20px;max-width:480px;padding:0 8px}
-.hero h2{font-size:18px;color:var(--text);font-weight:400;line-height:1.6}
+.hero{position:relative;z-index:2;text-align:center;margin-top:16px;max-width:420px;padding:0 8px}
+.hero h2{font-size:16px;color:var(--text);font-weight:400;line-height:1.5}
 .hero h2 span{color:var(--rose);font-weight:500}
 
-/* ── Bento Grid ── */
-.bento{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:auto;gap:14px;width:100%;max-width:720px;margin-top:36px;auto-rows:minmax(170px,auto)}
-
-.bento-card{position:relative;border-radius:20px;overflow:hidden;background:rgba(255,255,255,.65);backdrop-filter:blur(12px);box-shadow:0 0 0 1px rgba(122,85,85,.04),0 2px 8px rgba(180,120,120,.06),0 12px 32px rgba(180,120,120,.06);transition:transform .3s ease,box-shadow .3s ease;display:flex;flex-direction:column;justify-content:flex-end;padding:24px;cursor:default}
-.bento-card:hover{transform:translateY(-4px);box-shadow:0 0 0 1px rgba(122,85,85,.06),0 4px 12px rgba(180,120,120,.1),0 20px 48px rgba(180,120,120,.1)}
-
-.bento-card .card-bg{position:absolute;inset:0;pointer-events:none;overflow:hidden}
-.bento-card .card-bg img{position:absolute;width:100%;height:100%;object-fit:cover;opacity:.12;filter:saturate(.6)}
-
-.bento-card .card-icon{width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:rgba(247,197,197,.25);margin-bottom:12px;font-size:20px;transition:transform .3s ease}
-.bento-card:hover .card-icon{transform:scale(.85)}
-
-.bento-card h3{font-size:16px;font-weight:500;color:var(--deep);margin-bottom:4px;line-height:1.3}
-.bento-card p{font-size:13px;color:var(--mauve);line-height:1.5;max-width:240px}
-
-.bento-card .card-cta{position:absolute;bottom:0;left:0;right:0;padding:14px 24px;display:flex;align-items:center;gap:6px;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--rose);font-weight:400;opacity:0;transform:translateY(10px);transition:all .3s ease;pointer-events:none}
-.bento-card:hover .card-cta{opacity:1;transform:translateY(0);pointer-events:auto}
-.card-cta svg{width:14px;height:14px}
-
-.bento-card .card-overlay{position:absolute;inset:0;background:transparent;transition:background .3s ease;pointer-events:none}
-.bento-card:hover .card-overlay{background:rgba(122,85,85,.02)}
-
-/* Grid placement */
-.card-upload{grid-column:1/3;grid-row:1/3;min-height:280px}
-.card-swipe{grid-column:3/4;grid-row:1/2;min-height:170px}
-.card-dashboard{grid-column:3/4;grid-row:2/3;min-height:170px}
-.card-chat{grid-column:1/2;grid-row:3/4;min-height:170px}
-.card-share{grid-column:2/4;grid-row:3/4;min-height:170px}
-
-/* Upload card special - has accent border */
-.card-upload{background:linear-gradient(135deg,rgba(255,255,255,.75),rgba(253,232,216,.2));padding:28px}
-.card-upload .card-icon{width:48px;height:48px;font-size:24px;background:rgba(232,160,160,.15)}
-
-/* Responsive: tablet */
-@media(max-width:768px){
-  .bento{grid-template-columns:repeat(2,1fr);max-width:520px}
-  .card-upload{grid-column:1/3;grid-row:1/2;min-height:200px}
-  .card-swipe{grid-column:1/2;grid-row:2/3;min-height:160px}
-  .card-dashboard{grid-column:2/3;grid-row:2/3;min-height:160px}
-  .card-chat{grid-column:1/2;grid-row:3/4;min-height:160px}
-  .card-share{grid-column:2/3;grid-row:3/4;min-height:160px}
-}
-
-/* Responsive: phone */
-@media(max-width:480px){
-  .bento{grid-template-columns:1fr;gap:12px;margin-top:28px}
-  .card-upload,.card-swipe,.card-dashboard,.card-chat,.card-share{grid-column:1/-1;grid-row:auto;min-height:150px}
-  .card-upload{min-height:180px}
-  .bento-card{padding:20px}
-  .bento-card .card-cta{opacity:1;transform:translateY(0);position:relative;padding:8px 0 0}
-}
-
-/* ── Create Section ── */
-.create-section{width:100%;max-width:520px;margin-top:48px;display:flex;flex-direction:column;align-items:center;gap:0}
-.create-section h3{font-family:'Pinyon Script',cursive;font-size:clamp(36px,9vw,52px);color:var(--rose);text-align:center;margin-bottom:4px}
-.create-section .create-sub{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--mauve);margin-bottom:24px;text-align:center}
-
-.upload-area{width:100%;max-width:420px;border:none;border-radius:24px;padding:40px 24px;text-align:center;cursor:pointer;transition:background .2s;background:rgba(247,197,197,.15);backdrop-filter:blur(8px)}
+.upload-area{position:relative;z-index:2;width:100%;max-width:420px;margin-top:24px;border:none;border-radius:24px;padding:40px 24px;text-align:center;cursor:pointer;transition:background .2s;background:rgba(247,197,197,.15);backdrop-filter:blur(8px)}
 .upload-area:hover,.upload-area.dragover{background:rgba(247,197,197,.25)}
 .upload-area .icon{font-size:40px;margin-bottom:12px}
 .upload-area p{color:var(--mauve);font-size:14px;letter-spacing:1px}
 .upload-area .sub{font-size:11px;margin-top:6px;color:#c0a0a0}
 
-.preview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;width:100%;max-width:420px;margin-top:16px}
+.preview-grid{position:relative;z-index:2;display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;width:100%;max-width:420px;margin-top:16px}
 .preview-grid img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:12px;box-shadow:0 2px 8px rgba(180,120,120,.12)}
 .preview-item{position:relative}
 .preview-item .remove{position:absolute;top:-6px;right:-6px;width:20px;height:20px;background:var(--rose);color:white;border:none;border-radius:50%;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
 
-.form-section{width:100%;max-width:420px;margin-top:24px;display:flex;flex-direction:column;gap:14px}
+.form-section{position:relative;z-index:2;width:100%;max-width:420px;margin-top:24px;display:flex;flex-direction:column;gap:14px}
 .form-section input{width:100%;padding:14px 18px;border:none;border-radius:16px;background:rgba(255,255,255,.6);font-family:'Jost',sans-serif;font-size:14px;color:var(--text);outline:none;box-shadow:0 2px 12px rgba(180,120,120,.06)}
 .form-section input:focus{box-shadow:0 2px 16px rgba(232,160,160,.18)}
 .form-section input::placeholder{color:var(--mauve)}
 
-.btn-create{width:100%;max-width:420px;margin-top:20px;padding:16px 32px;background:var(--rose);border:none;border-radius:100px;font-family:'Jost',sans-serif;font-size:15px;letter-spacing:3px;text-transform:uppercase;color:white;cursor:pointer;transition:transform .2s,box-shadow .2s;box-shadow:0 6px 24px rgba(232,160,160,.3)}
+.btn-create{position:relative;z-index:2;width:100%;max-width:420px;margin-top:20px;padding:16px 32px;background:var(--rose);border:none;border-radius:100px;font-family:'Jost',sans-serif;font-size:15px;letter-spacing:3px;text-transform:uppercase;color:white;cursor:pointer;transition:transform .2s,box-shadow .2s;box-shadow:0 6px 24px rgba(232,160,160,.3)}
 .btn-create:hover{transform:scale(1.03);box-shadow:0 8px 32px rgba(232,160,160,.45)}
 .btn-create:active{transform:scale(.98)}
 .btn-create:disabled{opacity:.5;cursor:not-allowed;transform:none}
 
-.progress-bar{display:none;width:100%;max-width:420px;height:4px;background:var(--blush);border-radius:4px;margin-top:16px;overflow:hidden}
+.progress-bar{display:none;width:100%;max-width:420px;height:4px;background:var(--blush);border-radius:4px;margin-top:16px;overflow:hidden;position:relative;z-index:2}
 .progress-bar .fill{height:100%;background:var(--rose);border-radius:4px;transition:width .3s;width:0%}
 
-.count-label{font-size:12px;color:var(--mauve);letter-spacing:2px;margin-top:8px;text-transform:uppercase}
+.count-label{position:relative;z-index:2;font-size:12px;color:var(--mauve);letter-spacing:2px;margin-top:8px;text-transform:uppercase}
 
-/* ── Share Modal ── */
 .share-modal{display:none;position:fixed;inset:0;z-index:200;background:rgba(255,248,243,.95);backdrop-filter:blur(12px);flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px;text-align:center}
 .share-modal.show{display:flex}
 .share-modal h2{font-family:'Pinyon Script',cursive;font-size:52px;color:var(--rose)}
@@ -119,121 +59,37 @@ header p{font-size:12px;letter-spacing:4px;text-transform:uppercase;color:var(--
 .share-modal .btn-copy{background:var(--blush);color:var(--text);margin-top:8px}
 .share-modal .btn-wa{background:#25d366;color:white;margin-top:4px}
 .share-modal .btn-dash{background:transparent;border:2px solid var(--rose);color:var(--rose);margin-top:12px}
-
-/* ── Footer ── */
-.footer{margin-top:56px;padding:24px 0;text-align:center;width:100%}
-.footer p{font-size:11px;color:var(--mauve);letter-spacing:2px;text-transform:uppercase}
 </style>
 </head>
 <body>
 
-<div class="page">
+<header>
+  <h1>delicious</h1>
+  <p>swipe & pick</p>
+</header>
 
-  <header>
-    <h1>delicious</h1>
-    <p>swipe & pick</p>
-  </header>
-
-  <div class="hero">
-    <h2>Upload your photos, share with friends, let them <span>pick their faves</span></h2>
-  </div>
-
-  <!-- ── Bento Feature Grid ── -->
-  <div class="bento">
-
-    <div class="bento-card card-upload">
-      <div class="card-bg"><img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=640&q=60" alt=""></div>
-      <div class="card-icon">📸</div>
-      <h3>Upload your photos</h3>
-      <p>Drag & drop up to 30 photos from any shoot — portraits, travel, events, anything</p>
-      <div class="card-cta">
-        <span>get started</span>
-        <svg viewBox="0 0 15 15" fill="none"><path d="M8.14 2.5L13.14 7.5L8.14 12.5M12.64 7.5H1.86" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </div>
-      <div class="card-overlay"></div>
-    </div>
-
-    <div class="bento-card card-swipe">
-      <div class="card-bg"><img src="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=640&q=60" alt=""></div>
-      <div class="card-icon">👆</div>
-      <h3>Swipe to pick</h3>
-      <p>Friends swipe right on their faves, left to skip</p>
-      <div class="card-cta">
-        <span>see how</span>
-        <svg viewBox="0 0 15 15" fill="none"><path d="M8.14 2.5L13.14 7.5L8.14 12.5M12.64 7.5H1.86" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </div>
-      <div class="card-overlay"></div>
-    </div>
-
-    <div class="bento-card card-dashboard">
-      <div class="card-bg"><img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=640&q=60" alt=""></div>
-      <div class="card-icon">📊</div>
-      <h3>See results live</h3>
-      <p>Real-time dashboard shows which photos everyone loves</p>
-      <div class="card-cta">
-        <span>learn more</span>
-        <svg viewBox="0 0 15 15" fill="none"><path d="M8.14 2.5L13.14 7.5L8.14 12.5M12.64 7.5H1.86" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </div>
-      <div class="card-overlay"></div>
-    </div>
-
-    <div class="bento-card card-chat">
-      <div class="card-bg"><img src="https://images.unsplash.com/photo-1577563908411-5077b6dc7624?w=640&q=60" alt=""></div>
-      <div class="card-icon">💬</div>
-      <h3>Chat with viewers</h3>
-      <p>Talk to friends while they're picking their favorites</p>
-      <div class="card-cta">
-        <span>learn more</span>
-        <svg viewBox="0 0 15 15" fill="none"><path d="M8.14 2.5L13.14 7.5L8.14 12.5M12.64 7.5H1.86" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </div>
-      <div class="card-overlay"></div>
-    </div>
-
-    <div class="bento-card card-share">
-      <div class="card-bg"><img src="https://images.unsplash.com/photo-1522543558187-768b6df7c25c?w=640&q=60" alt=""></div>
-      <div class="card-icon">🔗</div>
-      <h3>Share anywhere</h3>
-      <p>One link — share on WhatsApp, iMessage, Instagram, or just copy & paste</p>
-      <div class="card-cta">
-        <span>learn more</span>
-        <svg viewBox="0 0 15 15" fill="none"><path d="M8.14 2.5L13.14 7.5L8.14 12.5M12.64 7.5H1.86" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </div>
-      <div class="card-overlay"></div>
-    </div>
-
-  </div>
-
-  <!-- ── Create Section ── -->
-  <div class="create-section">
-    <h3>start a session</h3>
-    <div class="create-sub">it only takes a minute</div>
-
-    <div class="upload-area" id="uploadArea">
-      <div class="icon">+</div>
-      <p>tap or drag photos here</p>
-      <div class="sub">up to 30 photos</div>
-    </div>
-    <input type="file" id="fileInput" multiple accept="image/*" hidden>
-
-    <div class="count-label" id="countLabel"></div>
-    <div class="preview-grid" id="previewGrid"></div>
-
-    <div class="form-section" id="formSection" style="display:none">
-      <input type="text" id="sessionName" placeholder="session name (e.g. Beach shoot June)">
-      <input type="text" id="creatorName" placeholder="your name (optional)">
-    </div>
-
-    <div class="progress-bar" id="progressBar"><div class="fill" id="progressFill"></div></div>
-    <button class="btn-create" id="btnCreate" style="display:none">create session</button>
-  </div>
-
-  <div class="footer">
-    <p>made with 💗</p>
-  </div>
-
+<div class="hero">
+  <h2>Upload your photos, share with friends, let them <span>pick their faves</span></h2>
 </div>
 
-<!-- ── Share Modal ── -->
+<div class="upload-area" id="uploadArea">
+  <div class="icon">+</div>
+  <p>tap or drag photos here</p>
+  <div class="sub">up to 30 photos</div>
+</div>
+<input type="file" id="fileInput" multiple accept="image/*" hidden>
+
+<div class="count-label" id="countLabel"></div>
+<div class="preview-grid" id="previewGrid"></div>
+
+<div class="form-section" id="formSection" style="display:none">
+  <input type="text" id="sessionName" placeholder="session name (e.g. Beach shoot June)">
+  <input type="text" id="creatorName" placeholder="your name (optional)">
+</div>
+
+<div class="progress-bar" id="progressBar"><div class="fill" id="progressFill"></div></div>
+<button class="btn-create" id="btnCreate" style="display:none">create session</button>
+
 <div class="share-modal" id="shareModal">
   <h2>ready!</h2>
   <div class="sub">share this link with your friends</div>
@@ -360,10 +216,6 @@ function showShareModal(sessionId) {
     window.location.href = `/dashboard/${sessionId}`;
   };
 }
-
-document.querySelector('.card-upload').addEventListener('click', () => {
-  document.getElementById('uploadArea').scrollIntoView({ behavior: 'smooth', block: 'center' });
-});
 </script>
 </body>
 </html>
