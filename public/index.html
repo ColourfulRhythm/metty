@@ -5,98 +5,123 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Delicious</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💗</text></svg>">
-<link href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--blush:#f7c5c5;--rose:#e8a0a0;--cream:#fff8f3;--peach:#fde8d8;--mauve:#c9a0a0;--text:#7a5555;--deep:#5a3e3e}
-body{background:var(--cream);font-family:'Jost',sans-serif;min-height:100dvh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden;position:relative;padding:0 max(24px,env(safe-area-inset-left)) calc(env(safe-area-inset-bottom)+24px) max(24px,env(safe-area-inset-right));width:100%}
+:root{
+  --blush:#f5e8e4;--blush-mid:#eeddd8;--blush-deep:#e8cfc8;
+  --rose:#c97b6e;--rose-dark:#b3604f;--rose-light:#e8a99f;
+  --cream:#faf5f3;--text-dark:#2d1f1c;--text-mid:#7a5c57;--text-light:#b89a95;
+  --white:#ffffff;--green:#4caf82;
+  --gutter:max(28px,env(safe-area-inset-left));--gutter-r:max(28px,env(safe-area-inset-right))
+}
 html{overflow-x:hidden}
-body::before,body::after{content:'';position:fixed;border-radius:50%;filter:blur(80px);opacity:.4;pointer-events:none;z-index:0}
-body::before{width:400px;height:400px;background:var(--blush);top:-100px;left:-100px}
-body::after{width:350px;height:350px;background:var(--peach);bottom:-80px;right:-80px}
+body{
+  font-family:'DM Sans',sans-serif;background:#f0e4e0;min-height:100dvh;
+  display:flex;flex-direction:column;align-items:center;overflow-x:hidden;position:relative;
+  padding:calc(env(safe-area-inset-top)+24px) var(--gutter) calc(env(safe-area-inset-bottom)+32px) var(--gutter-r);
+  width:100%;max-width:100vw
+}
+.page-bg{
+  position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse at 80% 0%,#f5ddd8 0%,transparent 60%),
+    radial-gradient(ellipse at 10% 90%,#f0d8d2 0%,transparent 50%),var(--cream)
+}
+header{position:relative;z-index:2;text-align:center;padding:0 0 6px}
+.logo{font-family:'Playfair Display',serif;font-style:italic;font-size:46px;font-weight:400;color:var(--rose);line-height:1;letter-spacing:-0.02em}
+.tagline{font-size:10px;font-weight:500;letter-spacing:0.22em;color:var(--text-light);text-transform:uppercase;margin-bottom:24px}
+.hero-text{font-size:15px;color:var(--text-mid);text-align:center;line-height:1.6;margin-bottom:24px}
+.hero-text span{color:var(--rose);font-weight:500}
 
-header{position:relative;z-index:2;padding:32px 0 8px;text-align:center;width:100%}
-header h1{font-family:'Pinyon Script',cursive;font-size:clamp(48px,13vw,80px);color:var(--rose);line-height:1;text-shadow:2px 3px 12px rgba(232,160,160,.3);letter-spacing:2px}
-header p{font-size:12px;letter-spacing:4px;text-transform:uppercase;color:var(--mauve);font-weight:300;margin-top:4px}
+.upload-area{
+  position:relative;z-index:2;width:100%;max-width:min(420px,100%);
+  border:1.5px dashed var(--rose-light);border-radius:24px;background:rgba(245,232,228,0.4);
+  padding:40px 24px;text-align:center;cursor:pointer;transition:all 0.25s ease;margin-bottom:20px
+}
+.upload-area:hover,.upload-area.dragover{background:rgba(245,232,228,0.7);border-color:var(--rose)}
+.upload-icon{width:52px;height:52px;border-radius:50%;background:var(--white);box-shadow:0 4px 16px rgba(201,123,110,0.2);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:22px}
+.upload-area .upload-main{font-size:14px;font-weight:500;color:var(--text-dark);margin-bottom:4px}
+.upload-area .upload-sub{font-size:12px;color:var(--text-light)}
 
-.hero{position:relative;z-index:2;text-align:center;margin-top:16px;max-width:420px;padding:0 8px}
-.hero h2{font-size:16px;color:var(--text);font-weight:400;line-height:1.5}
-.hero h2 span{color:var(--rose);font-weight:500}
+.photos-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.photos-count{font-size:11px;font-weight:500;letter-spacing:0.1em;color:var(--text-mid);text-transform:uppercase}
+.photos-clear{font-size:12px;color:var(--rose);cursor:pointer}
+.photos-grid{position:relative;z-index:2;display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;width:100%;max-width:min(420px,100%)}
+.photo-thumb{width:86px;height:86px;border-radius:16px;overflow:hidden;position:relative;box-shadow:0 2px 12px rgba(0,0,0,0.08);flex-shrink:0}
+.photo-thumb img{width:100%;height:100%;object-fit:cover}
+.photo-remove{position:absolute;top:5px;right:5px;width:20px;height:20px;background:rgba(45,31,28,0.6);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:10px;cursor:pointer;backdrop-filter:blur(4px);border:none}
 
-.upload-area{position:relative;z-index:2;width:100%;max-width:420px;margin-top:24px;border:none;border-radius:24px;padding:40px 24px;text-align:center;cursor:pointer;transition:background .2s;background:rgba(247,197,197,.15);backdrop-filter:blur(8px)}
-.upload-area:hover,.upload-area.dragover{background:rgba(247,197,197,.25)}
-.upload-area .icon{font-size:40px;margin-bottom:12px}
-.upload-area p{color:var(--mauve);font-size:14px;letter-spacing:1px}
-.upload-area .sub{font-size:11px;margin-top:6px;color:#c0a0a0}
+.form-section{position:relative;z-index:2;width:100%;max-width:min(420px,100%);display:flex;flex-direction:column;gap:12px;margin-bottom:12px}
+.inp{width:100%;padding:15px 20px;border-radius:16px;border:1.5px solid transparent;background:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text-dark);outline:none;transition:all 0.2s;box-shadow:0 1px 4px rgba(180,100,80,0.06)}
+.inp::placeholder{color:var(--text-light)}
+.inp:focus{border-color:var(--rose-light);box-shadow:0 0 0 4px rgba(201,123,110,0.08)}
 
-.preview-grid{position:relative;z-index:2;display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;width:100%;max-width:420px;margin-top:16px}
-.preview-grid img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:12px;box-shadow:0 2px 8px rgba(180,120,120,.12)}
-.preview-item{position:relative}
-.preview-item .remove{position:absolute;top:-6px;right:-6px;width:20px;height:20px;background:var(--rose);color:white;border:none;border-radius:50%;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
-
-.form-section{position:relative;z-index:2;width:100%;max-width:420px;margin-top:24px;display:flex;flex-direction:column;gap:14px}
-.form-section input{width:100%;padding:14px 18px;border:none;border-radius:16px;background:rgba(255,255,255,.6);font-family:'Jost',sans-serif;font-size:14px;color:var(--text);outline:none;box-shadow:0 2px 12px rgba(180,120,120,.06)}
-.form-section input:focus{box-shadow:0 2px 16px rgba(232,160,160,.18)}
-.form-section input::placeholder{color:var(--mauve)}
-
-.btn-create{position:relative;z-index:2;width:100%;max-width:420px;margin-top:20px;padding:16px 32px;background:var(--rose);border:none;border-radius:100px;font-family:'Jost',sans-serif;font-size:15px;letter-spacing:3px;text-transform:uppercase;color:white;cursor:pointer;transition:transform .2s,box-shadow .2s;box-shadow:0 6px 24px rgba(232,160,160,.3)}
-.btn-create:hover{transform:scale(1.03);box-shadow:0 8px 32px rgba(232,160,160,.45)}
-.btn-create:active{transform:scale(.98)}
+.btn-create{
+  position:relative;z-index:2;width:100%;max-width:min(420px,100%);padding:17px;
+  border-radius:20px;background:linear-gradient(135deg,var(--rose) 0%,var(--rose-dark) 100%);
+  border:none;color:white;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;
+  letter-spacing:0.18em;text-transform:uppercase;cursor:pointer;transition:all 0.25s ease;
+  box-shadow:0 4px 20px rgba(179,96,79,0.35);margin-top:auto
+}
+.btn-create:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(179,96,79,0.4)}
 .btn-create:disabled{opacity:.5;cursor:not-allowed;transform:none}
 
-.progress-bar{display:none;width:100%;max-width:420px;height:4px;background:var(--blush);border-radius:4px;margin-top:16px;overflow:hidden;position:relative;z-index:2}
-.progress-bar .fill{height:100%;background:var(--rose);border-radius:4px;transition:width .3s;width:0%}
+.progress-bar{display:none;width:100%;max-width:min(420px,100%);height:4px;background:var(--blush-deep);border-radius:2px;margin-top:16px;overflow:hidden;position:relative;z-index:2}
+.progress-bar .fill{height:100%;background:linear-gradient(90deg,var(--rose-light),var(--rose));border-radius:2px;transition:width .3s;width:0%}
 
-.count-label{position:relative;z-index:2;font-size:12px;color:var(--mauve);letter-spacing:2px;margin-top:8px;text-transform:uppercase}
-
-.share-modal{display:none;position:fixed;inset:0;z-index:200;background:rgba(255,248,243,.95);backdrop-filter:blur(12px);flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px;text-align:center}
+.share-modal{display:none;position:fixed;inset:0;z-index:200;background:rgba(250,245,243,.97);backdrop-filter:blur(12px);flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:48px var(--gutter) 48px var(--gutter-r);text-align:center}
 .share-modal.show{display:flex}
-.share-modal h2{font-family:'Pinyon Script',cursive;font-size:52px;color:var(--rose)}
-.share-modal .link-box{background:white;padding:14px 20px;border-radius:16px;font-size:14px;color:var(--text);word-break:break-all;box-shadow:0 2px 12px rgba(180,120,120,.1);max-width:360px;width:100%}
-.share-modal .sub{font-size:12px;color:var(--mauve);letter-spacing:2px;text-transform:uppercase;margin-top:4px}
-.share-modal button{padding:14px 28px;border:none;border-radius:100px;font-family:'Jost',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:transform .2s}
-.share-modal button:hover{transform:scale(1.05)}
-.share-modal .btn-copy{background:var(--blush);color:var(--text);margin-top:8px}
-.share-modal .btn-wa{background:#25d366;color:white;margin-top:4px}
-.share-modal .btn-dash{background:transparent;border:2px solid var(--rose);color:var(--rose);margin-top:12px}
+.share-modal .s3-logo{font-family:'Playfair Display',serif;font-style:italic;font-size:36px;color:var(--rose);margin-bottom:2px}
+.share-modal .share-sub{font-size:10px;font-weight:500;letter-spacing:0.22em;color:var(--text-light);text-transform:uppercase;margin-bottom:20px}
+.share-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+.btn-share{padding:11px 22px;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;letter-spacing:0.06em;cursor:pointer;transition:all 0.2s;border:none}
+.btn-outline{background:var(--white);color:var(--text-dark);box-shadow:0 2px 12px rgba(0,0,0,0.06),inset 0 0 0 1.5px var(--blush-deep)}
+.btn-outline:hover{box-shadow:0 4px 16px rgba(0,0,0,0.1),inset 0 0 0 1.5px var(--rose-light)}
+.btn-whatsapp{background:#25D366;color:white;box-shadow:0 4px 16px rgba(37,211,102,0.3)}
+.link-box{background:white;padding:14px 20px;border-radius:16px;font-size:14px;color:var(--text-dark);word-break:break-all;box-shadow:0 2px 12px rgba(180,100,80,0.1);max-width:min(360px,calc(100vw - var(--gutter) - var(--gutter-r) - 32px));width:100%}
+.share-modal .btn-dash{background:transparent;border:2px solid var(--rose);color:var(--rose);margin-top:8px}
 </style>
 </head>
 <body>
+<div class="page-bg"></div>
 
 <header>
-  <h1>delicious</h1>
-  <p>swipe & pick</p>
+  <div class="logo">delicious</div>
+  <div class="tagline">Swipe &amp; Pick</div>
 </header>
 
-<div class="hero">
-  <h2>Upload your photos, share with friends, let them <span>pick their faves</span></h2>
-</div>
+<p class="hero-text">Upload your photos, share with friends,<br>let them <span>pick their faves</span></p>
 
 <div class="upload-area" id="uploadArea">
-  <div class="icon">+</div>
-  <p>tap or drag photos here</p>
-  <div class="sub">up to 30 photos</div>
+  <div class="upload-icon">＋</div>
+  <div class="upload-main">Tap or drag photos here</div>
+  <div class="upload-sub">Up to 30 photos</div>
 </div>
 <input type="file" id="fileInput" multiple accept="image/*" hidden>
 
-<div class="count-label" id="countLabel"></div>
-<div class="preview-grid" id="previewGrid"></div>
+<div class="photos-header" id="photosHeader" style="display:none">
+  <span class="photos-count" id="countLabel"></span>
+  <span class="photos-clear" id="photosClear">Clear all</span>
+</div>
+<div class="photos-grid" id="previewGrid"></div>
 
 <div class="form-section" id="formSection" style="display:none">
-  <input type="text" id="sessionName" placeholder="session name (e.g. Beach shoot June)">
-  <input type="text" id="creatorName" placeholder="your name (optional)">
+  <input class="inp" type="text" id="sessionName" placeholder="Session name (e.g. Beach shoot June)">
+  <input class="inp" type="text" id="creatorName" placeholder="Your name (optional)">
 </div>
 
 <div class="progress-bar" id="progressBar"><div class="fill" id="progressFill"></div></div>
-<button class="btn-create" id="btnCreate" style="display:none">create session</button>
+<button class="btn-create" id="btnCreate" style="display:none">Create Session</button>
 
 <div class="share-modal" id="shareModal">
-  <h2>ready!</h2>
-  <div class="sub">share this link with your friends</div>
+  <div class="s3-logo">delicious</div>
+  <div class="share-sub">Share this link with your friends</div>
+  <div class="share-row">
+    <button class="btn-share btn-outline" id="btnCopy">Copy link</button>
+    <button class="btn-share btn-whatsapp" id="btnWa">WhatsApp</button>
+  </div>
   <div class="link-box" id="shareLink"></div>
-  <button class="btn-copy" id="btnCopy">copy link</button>
-  <button class="btn-wa" id="btnWa">share on whatsapp</button>
-  <button class="btn-dash" id="btnDash">open dashboard</button>
+  <button class="btn-share btn-outline btn-dash" id="btnDash">Open dashboard</button>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -111,6 +136,8 @@ const progressBar = document.getElementById('progressBar');
 const progressFill = document.getElementById('progressFill');
 const shareModal = document.getElementById('shareModal');
 const countLabel = document.getElementById('countLabel');
+const photosHeader = document.getElementById('photosHeader');
+const photosClear = document.getElementById('photosClear');
 
 let selectedFiles = [];
 
@@ -123,6 +150,7 @@ uploadArea.addEventListener('drop', e => {
   addFiles(e.dataTransfer.files);
 });
 fileInput.addEventListener('change', () => { addFiles(fileInput.files); fileInput.value = ''; });
+photosClear.addEventListener('click', () => { selectedFiles = []; renderPreviews(); });
 
 function addFiles(fileList) {
   const newFiles = Array.from(fileList).filter(f => f.type.startsWith('image/'));
@@ -134,11 +162,11 @@ function renderPreviews() {
   previewGrid.innerHTML = '';
   selectedFiles.forEach((file, i) => {
     const item = document.createElement('div');
-    item.className = 'preview-item';
+    item.className = 'photo-thumb';
     const img = document.createElement('img');
     img.src = URL.createObjectURL(file);
     const rm = document.createElement('button');
-    rm.className = 'remove';
+    rm.className = 'photo-remove';
     rm.textContent = '\u00d7';
     rm.onclick = () => { selectedFiles.splice(i, 1); renderPreviews(); };
     item.appendChild(img);
@@ -146,6 +174,7 @@ function renderPreviews() {
     previewGrid.appendChild(item);
   });
   countLabel.textContent = selectedFiles.length > 0 ? `${selectedFiles.length} photo${selectedFiles.length > 1 ? 's' : ''} selected` : '';
+  photosHeader.style.display = selectedFiles.length > 0 ? 'flex' : 'none';
   formSection.style.display = selectedFiles.length > 0 ? 'flex' : 'none';
   btnCreate.style.display = selectedFiles.length > 0 ? 'block' : 'none';
 }
@@ -153,7 +182,7 @@ function renderPreviews() {
 btnCreate.addEventListener('click', async () => {
   if (selectedFiles.length === 0) return;
   btnCreate.disabled = true;
-  btnCreate.textContent = 'uploading...';
+  btnCreate.textContent = 'Uploading...';
   progressBar.style.display = 'block';
 
   const sessionId = generateId(8);
@@ -193,7 +222,7 @@ btnCreate.addEventListener('click', async () => {
     console.error('Upload error:', err);
     alert('Upload failed: ' + (err.message || 'Unknown error'));
     btnCreate.disabled = false;
-    btnCreate.textContent = 'create session';
+    btnCreate.textContent = 'Create Session';
     progressBar.style.display = 'none';
   }
 });
@@ -205,8 +234,8 @@ function showShareModal(sessionId) {
 
   document.getElementById('btnCopy').onclick = () => {
     navigator.clipboard.writeText(fullUrl).then(() => {
-      document.getElementById('btnCopy').textContent = 'copied!';
-      setTimeout(() => document.getElementById('btnCopy').textContent = 'copy link', 2000);
+      document.getElementById('btnCopy').textContent = 'Copied!';
+      setTimeout(() => document.getElementById('btnCopy').textContent = 'Copy link', 2000);
     });
   };
   document.getElementById('btnWa').onclick = () => {

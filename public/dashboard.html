@@ -5,86 +5,95 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Delicious — Dashboard</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💗</text></svg>">
-<link href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--blush:#f7c5c5;--rose:#e8a0a0;--cream:#fff8f3;--peach:#fde8d8;--mauve:#c9a0a0;--text:#7a5555;--deep:#5a3e3e}
+:root{
+  --blush:#f5e8e4;--blush-mid:#eeddd8;--blush-deep:#e8cfc8;
+  --rose:#c97b6e;--rose-dark:#b3604f;--rose-light:#e8a99f;
+  --cream:#faf5f3;--text-dark:#2d1f1c;--text-mid:#7a5c57;--text-light:#b89a95;
+  --white:#ffffff;--green:#4caf82;
+  --gutter:max(28px,env(safe-area-inset-left));--gutter-r:max(28px,env(safe-area-inset-right))
+}
 html{overflow-x:hidden}
-body{background:var(--cream);font-family:'Jost',sans-serif;min-height:100dvh;padding:0 max(24px,env(safe-area-inset-left)) calc(env(safe-area-inset-bottom)+24px) max(24px,env(safe-area-inset-right));position:relative;width:100%;max-width:540px;margin:0 auto}
-body::before,body::after{content:'';position:fixed;border-radius:50%;filter:blur(80px);opacity:.35;pointer-events:none;z-index:0}
-body::before{width:400px;height:400px;background:var(--blush);top:-100px;left:-100px}
-body::after{width:350px;height:350px;background:var(--peach);bottom:-80px;right:-80px}
+body{font-family:'DM Sans',sans-serif;background:#f0e4e0;min-height:100dvh;padding:0 var(--gutter) calc(env(safe-area-inset-bottom)+32px) var(--gutter-r);position:relative;width:100%;max-width:min(540px,100vw);margin:0 auto;box-sizing:border-box}
+.page-bg{position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 50% 0%,#f0d8d2 0%,transparent 60%),var(--cream)}
 
-header{position:relative;z-index:2;text-align:center;padding:32px 0 12px}
-header h1{font-family:'Pinyon Script',cursive;font-size:clamp(40px,10vw,64px);color:var(--rose);line-height:1}
-header .session-name{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--mauve);margin-top:2px}
+header{position:relative;z-index:2;text-align:center;padding:calc(env(safe-area-inset-top)+28px) 0 24px;background:linear-gradient(180deg,#f0d8d2 0%,var(--cream) 100%);margin:0 calc(-1 * var(--gutter-r)) 0 calc(-1 * var(--gutter));padding:calc(env(safe-area-inset-top)+28px) var(--gutter-r) 24px var(--gutter)}
+.s3-logo{font-family:'Playfair Display',serif;font-style:italic;font-size:36px;color:var(--rose);margin-bottom:2px}
+.s3-name{font-size:10px;font-weight:500;letter-spacing:0.22em;color:var(--text-light);text-transform:uppercase;margin-bottom:20px}
 
-.share-bar{position:relative;z-index:2;display:flex;gap:10px;justify-content:center;margin:12px 0 20px;flex-wrap:wrap}
-.share-bar button{padding:10px 20px;border:none;border-radius:100px;font-family:'Jost',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:transform .2s}
-.share-bar .btn-copy{background:var(--blush);color:var(--text)}
-.share-bar .btn-wa{background:#25d366;color:white}
-.share-bar button:hover{transform:scale(1.05)}
+.share-row{position:relative;z-index:2;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:24px}
+.btn-share{padding:11px 22px;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;letter-spacing:0.06em;cursor:pointer;transition:all 0.2s;border:none}
+.btn-outline{background:var(--white);color:var(--text-dark);box-shadow:0 2px 12px rgba(0,0,0,0.06),inset 0 0 0 1.5px var(--blush-deep)}
+.btn-outline:hover{box-shadow:0 4px 16px rgba(0,0,0,0.1),inset 0 0 0 1.5px var(--rose-light)}
+.btn-whatsapp{background:#25D366;color:white;box-shadow:0 4px 16px rgba(37,211,102,0.3)}
 
-.section-title{position:relative;z-index:2;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--mauve);margin:24px 0 12px;font-weight:400}
+.pill-divider{width:36px;height:4px;background:var(--blush-deep);border-radius:2px;margin:0 auto 28px}
 
-.leaderboard{position:relative;z-index:2;display:flex;gap:10px;overflow-x:auto;padding:0 4px 8px;-webkit-overflow-scrolling:touch}
-.leaderboard::-webkit-scrollbar{display:none}
-.leader-card{flex:0 0 100px;text-align:center}
-.leader-card img{width:100px;height:130px;object-fit:cover;border-radius:16px;box-shadow:0 4px 16px rgba(180,120,120,.15)}
-.leader-card .hearts{font-size:13px;color:var(--rose);margin-top:6px;font-weight:500}
+.section-label{position:relative;z-index:2;font-size:10px;font-weight:500;letter-spacing:0.2em;color:var(--text-light);text-transform:uppercase;margin-bottom:14px}
 
-.viewers-list{position:relative;z-index:2;display:flex;flex-direction:column;gap:12px}
-.viewer-card{background:rgba(255,255,255,.7);backdrop-filter:blur(8px);border-radius:20px;padding:16px;box-shadow:0 2px 12px rgba(180,120,120,.08);animation:fadeIn .4s ease}
-.viewer-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.viewer-name{font-size:16px;color:var(--text);font-weight:500}
-.viewer-meta{font-size:11px;color:var(--mauve);letter-spacing:1px}
-.viewer-picks{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
-.viewer-picks::-webkit-scrollbar{display:none}
-.viewer-picks img{width:60px;height:80px;object-fit:cover;border-radius:10px;flex-shrink:0;box-shadow:0 2px 8px rgba(180,120,120,.1)}
-.viewer-picks .no-picks{font-size:12px;color:var(--mauve);font-style:italic}
-.viewer-actions{display:flex;gap:8px;margin-top:10px}
-.btn-chat{padding:8px 16px;background:var(--blush);border:none;border-radius:100px;font-family:'Jost',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text);cursor:pointer;transition:transform .2s}
-.btn-chat:hover{transform:scale(1.05)}
+.loved-grid{position:relative;z-index:2;display:flex;gap:12px;overflow-x:auto;padding:0 2px 12px;margin:0 -2px;margin-bottom:28px;-webkit-overflow-scrolling:touch}
+.loved-grid::-webkit-scrollbar{display:none}
+.loved-card{flex:0 0 auto;width:140px;border-radius:20px;overflow:hidden;position:relative;aspect-ratio:1;box-shadow:0 4px 16px rgba(0,0,0,0.08)}
+.loved-card img{width:100%;height:100%;object-fit:cover}
+.loved-footer{position:absolute;bottom:0;left:0;right:0;padding:10px 12px;background:linear-gradient(to top,rgba(45,31,28,0.5),transparent);display:flex;align-items:center;gap:4px}
+.heart-icon{font-size:13px}
+.heart-count{font-size:12px;font-weight:500;color:white}
 
-.chat-modal{display:none;position:fixed;inset:0;z-index:300;background:rgba(255,248,243,.97);backdrop-filter:blur(8px);flex-direction:column;padding:0}
+.viewers-list{position:relative;z-index:2;display:flex;flex-direction:column;gap:16px}
+.friend-card{background:var(--white);border-radius:24px;padding:18px;box-shadow:0 2px 16px rgba(180,100,80,0.07);animation:fadeIn .4s ease}
+.friend-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.friend-name{font-size:16px;font-weight:500;color:var(--text-dark)}
+.friend-meta{font-size:11px;color:var(--text-light)}
+.friend-thumbs{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
+.friend-thumbs::-webkit-scrollbar{display:none}
+.friend-thumb{width:70px;height:70px;border-radius:14px;overflow:hidden;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.friend-thumb img{width:100%;height:100%;object-fit:cover}
+.friend-thumbs .no-picks{font-size:12px;color:var(--text-light);font-style:italic;min-width:80px}
+.btn-chat{padding:10px 20px;border-radius:100px;border:1.5px solid var(--blush-deep);background:transparent;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;letter-spacing:0.06em;color:var(--text-dark);cursor:pointer;transition:all 0.2s;margin-top:10px}
+.btn-chat:hover{background:var(--blush);border-color:var(--rose-light)}
+
+.chat-modal{display:none;position:fixed;inset:0;z-index:300;background:rgba(250,245,243,.97);backdrop-filter:blur(8px);flex-direction:column;padding:0}
 .chat-modal.open{display:flex}
-.chat-modal-header{display:flex;justify-content:space-between;align-items:center;padding:20px;border-bottom:1px solid var(--peach)}
-.chat-modal-header .name{font-size:16px;color:var(--text);font-weight:500}
-.chat-modal-header button{background:none;border:none;font-size:24px;color:var(--mauve);cursor:pointer}
-.chat-modal-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px}
-.chat-msg{max-width:80%;padding:10px 14px;border-radius:16px;font-size:13px;line-height:1.4;color:var(--text)}
-.chat-msg.from-creator{background:var(--peach);align-self:flex-end;border-bottom-right-radius:4px}
-.chat-msg.from-viewer{background:var(--blush);align-self:flex-start;border-bottom-left-radius:4px}
-.chat-input-row{display:flex;padding:12px 16px calc(env(safe-area-inset-bottom)+12px);gap:8px;border-top:1px solid var(--peach);background:white}
-.chat-input-row input{flex:1;padding:12px 16px;border:none;border-radius:100px;background:rgba(255,255,255,.8);font-family:'Jost',sans-serif;font-size:14px;color:var(--text);outline:none;box-shadow:inset 0 1px 4px rgba(180,120,120,.08)}
-.chat-input-row input:focus{box-shadow:inset 0 1px 6px rgba(232,160,160,.15)}
-.chat-input-row button{width:42px;height:42px;border-radius:50%;background:var(--rose);border:none;color:white;font-size:18px;cursor:pointer}
+.chat-modal-header{display:flex;justify-content:space-between;align-items:center;padding:20px var(--gutter-r) 20px var(--gutter);border-bottom:1px solid var(--blush-deep)}
+.chat-modal-header .name{font-size:16px;font-weight:500;color:var(--text-dark)}
+.chat-modal-header button{background:none;border:none;font-size:24px;color:var(--text-mid);cursor:pointer}
+.chat-modal-messages{flex:1;overflow-y:auto;padding:16px var(--gutter-r) 16px var(--gutter);display:flex;flex-direction:column;gap:8px}
+.chat-msg{max-width:80%;padding:12px 16px;border-radius:16px;font-size:13px;line-height:1.4;color:var(--text-dark)}
+.chat-msg.from-creator{background:var(--blush);align-self:flex-end;border-bottom-right-radius:4px}
+.chat-msg.from-viewer{background:var(--rose-light);align-self:flex-start;border-bottom-left-radius:4px}
+.chat-input-row{display:flex;padding:12px var(--gutter-r) calc(env(safe-area-inset-bottom)+12px) var(--gutter);gap:8px;border-top:1px solid var(--blush-deep);background:white}
+.chat-input-row input{flex:1;padding:12px 16px;border:none;border-radius:100px;background:rgba(245,232,228,0.5);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text-dark);outline:none}
+.chat-input-row input:focus{box-shadow:0 0 0 2px var(--rose-light)}
+.chat-input-row button{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--rose) 0%,var(--rose-dark) 100%);border:none;color:white;font-size:18px;cursor:pointer}
 
-.empty-state{position:relative;z-index:2;text-align:center;padding:60px 20px;color:var(--mauve);font-size:14px;letter-spacing:1px}
-
+.empty-state{position:relative;z-index:2;text-align:center;padding:48px 20px;color:var(--text-light);font-size:14px}
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 </style>
 </head>
 <body>
+<div class="page-bg"></div>
 
 <header>
-  <h1>delicious</h1>
-  <div class="session-name" id="sessionName">loading...</div>
+  <div class="s3-logo">delicious</div>
+  <div class="s3-name" id="sessionName">loading...</div>
+  <div class="share-row">
+    <button class="btn-share btn-outline" id="btnCopy">Copy link</button>
+    <button class="btn-share btn-whatsapp" id="btnWa">WhatsApp</button>
+  </div>
 </header>
 
-<div class="share-bar">
-  <button class="btn-copy" id="btnCopy">copy link</button>
-  <button class="btn-wa" id="btnWa">whatsapp</button>
+<div class="pill-divider"></div>
+
+<div class="section-label">Most Loved</div>
+<div class="loved-grid" id="leaderboard">
+  <div class="empty-state" style="width:100%;flex:1 1 100%">Waiting for picks...</div>
 </div>
 
-<div class="section-title">most loved</div>
-<div class="leaderboard" id="leaderboard">
-  <div class="empty-state" style="width:100%">waiting for picks...</div>
-</div>
-
-<div class="section-title">friends swiping</div>
+<div class="section-label">Friends Swiping</div>
 <div class="viewers-list" id="viewersList">
-  <div class="empty-state">share the link — waiting for friends to join...</div>
+  <div class="empty-state">Share the link — waiting for friends to join...</div>
 </div>
 
 <div class="chat-modal" id="chatModal">
@@ -94,7 +103,7 @@ header .session-name{font-size:12px;letter-spacing:3px;text-transform:uppercase;
   </div>
   <div class="chat-modal-messages" id="chatModalMessages"></div>
   <div class="chat-input-row">
-    <input type="text" id="chatModalInput" placeholder="type a message...">
+    <input type="text" id="chatModalInput" placeholder="Type a message...">
     <button id="chatModalSend">&#10148;</button>
   </div>
 </div>
@@ -112,17 +121,17 @@ let activeViewerId = null;
 
 async function loadDashboard() {
   if (!creatorToken) {
-    document.getElementById('viewersList').innerHTML = '<div class="empty-state">no creator token found — open dashboard from the session you created</div>';
+    document.getElementById('viewersList').innerHTML = '<div class="empty-state">No creator token found — open dashboard from the session you created</div>';
     return;
   }
 
   const { data: sess, error } = await db.from('sessions').select('*').eq('id', sessionId).single();
   if (error || !sess) {
-    document.getElementById('viewersList').innerHTML = '<div class="empty-state">session not found</div>';
+    document.getElementById('viewersList').innerHTML = '<div class="empty-state">Session not found</div>';
     return;
   }
   if (sess.creator_token !== creatorToken) {
-    document.getElementById('viewersList').innerHTML = '<div class="empty-state">unauthorized — wrong creator token</div>';
+    document.getElementById('viewersList').innerHTML = '<div class="empty-state">Unauthorized — wrong creator token</div>';
     return;
   }
   session = sess;
@@ -149,8 +158,8 @@ function setupShare() {
   const shareUrl = `${location.origin}/s/${sessionId}`;
   document.getElementById('btnCopy').onclick = () => {
     navigator.clipboard.writeText(shareUrl).then(() => {
-      document.getElementById('btnCopy').textContent = 'copied!';
-      setTimeout(() => document.getElementById('btnCopy').textContent = 'copy link', 2000);
+      document.getElementById('btnCopy').textContent = 'Copied!';
+      setTimeout(() => document.getElementById('btnCopy').textContent = 'Copy link', 2000);
     });
   };
   document.getElementById('btnWa').onclick = () => {
@@ -172,41 +181,43 @@ function renderLeaderboard() {
   const el = document.getElementById('leaderboard');
 
   if (sorted.length === 0) {
-    el.innerHTML = '<div class="empty-state" style="width:100%">waiting for picks...</div>';
+    el.innerHTML = '<div class="empty-state" style="width:100%;flex:1 1 100%">Waiting for picks...</div>';
     return;
   }
   el.innerHTML = sorted.map(({ idx, count }) => {
     const photo = photos[idx];
-    return `<div class="leader-card"><img src="${photo?.url}" alt="photo"><div class="hearts">${'\u2764\uFE0F'.repeat(Math.min(count, 5))} ${count}</div></div>`;
+    return `<div class="loved-card">
+      <img src="${photo?.url}" alt="photo">
+      <div class="loved-footer"><span class="heart-icon">❤️</span><span class="heart-count">${count}</span></div>
+    </div>`;
   }).join('');
 }
 
 function renderViewers() {
   const el = document.getElementById('viewersList');
   if (!viewers.length) {
-    el.innerHTML = '<div class="empty-state">share the link — waiting for friends to join...</div>';
+    el.innerHTML = '<div class="empty-state">Share the link — waiting for friends to join...</div>';
     return;
   }
   el.innerHTML = viewers.map(v => {
     const vSwipes = swipesMap[v.id] || [];
     const vPicks = vSwipes.filter(s => s.liked);
     const picksHtml = vPicks.length > 0
-      ? vPicks.map(s => `<img src="${photos[s.photo_index]?.url}" alt="pick">`).join('')
-      : '<span class="no-picks">still swiping...</span>';
-    return `<div class="viewer-card" data-viewer-id="${v.id}">
-      <div class="viewer-top">
-        <span class="viewer-name">${escHtml(v.name)}</span>
-        <span class="viewer-meta">${vSwipes.length}/${photos.length} swiped · ${vPicks.length} picks</span>
+      ? vPicks.map(s => `<div class="friend-thumb"><img src="${photos[s.photo_index]?.url}" alt="pick"></div>`).join('')
+      : '<span class="no-picks">Still swiping...</span>';
+    return `<div class="friend-card" data-viewer-id="${v.id}">
+      <div class="friend-row">
+        <span class="friend-name">${escHtml(v.name)}</span>
+        <span class="friend-meta">${vSwipes.length}/${photos.length} swiped · ${vPicks.length} picks</span>
       </div>
-      <div class="viewer-picks">${picksHtml}</div>
-      <div class="viewer-actions"><button class="btn-chat" onclick="openChat('${v.id}')">chat</button></div>
+      <div class="friend-thumbs">${picksHtml}</div>
+      <button class="btn-chat" onclick="openChat('${v.id}')">Chat →</button>
     </div>`;
   }).join('');
 }
 
 function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
-// Realtime subscriptions
 function subscribeToRealtime() {
   db.channel('dashboard-' + sessionId)
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'viewers', filter: `session_id=eq.${sessionId}` }, (payload) => {
@@ -228,7 +239,7 @@ function subscribeToRealtime() {
           const card = document.querySelector(`[data-viewer-id="${msg.viewer_id}"]`);
           if (card) {
             const btn = card.querySelector('.btn-chat');
-            if (btn) { btn.textContent = 'new message!'; btn.style.background = 'var(--rose)'; btn.style.color = 'white'; }
+            if (btn) { btn.textContent = 'New message!'; btn.style.background = 'var(--rose)'; btn.style.color = 'white'; btn.style.borderColor = 'var(--rose)'; }
           }
         }
       }
@@ -236,7 +247,6 @@ function subscribeToRealtime() {
     .subscribe();
 }
 
-// Chat modal
 async function openChat(vId) {
   activeViewerId = vId;
   const viewer = viewers.find(v => v.id === vId);
