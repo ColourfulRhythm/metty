@@ -85,18 +85,52 @@ header{position:relative;z-index:2;text-align:center;padding:0 0 6px}
 .btn-whatsapp{background:#25D366;color:white;box-shadow:0 4px 16px rgba(37,211,102,0.3)}
 .link-box{background:white;padding:14px 20px;border-radius:16px;font-size:14px;color:var(--text-dark);word-break:break-all;box-shadow:0 2px 12px rgba(180,100,80,0.1);max-width:min(360px,calc(100vw - var(--gutter) - var(--gutter-r) - 32px));width:100%}
 .share-modal .btn-dash{background:transparent;border:2px solid var(--rose);color:var(--rose);margin-top:8px}
+
+.auth-gate{display:none;position:relative;z-index:2;width:100%;max-width:min(360px,100%);text-align:center}
+.auth-gate.show{display:block}
+.auth-tabs{display:flex;gap:0;margin-bottom:20px;border-radius:16px;overflow:hidden;background:var(--blush-deep)}
+.auth-tab{padding:12px 24px;flex:1;border:none;background:transparent;font-size:13px;font-weight:500;color:var(--text-mid);cursor:pointer}
+.auth-tab.active{background:var(--white);color:var(--rose);box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+.auth-form .inp{margin-bottom:12px}
+.auth-form button{margin-top:8px;width:100%}
+.auth-error{font-size:12px;color:var(--rose);margin-top:8px;display:none}
+.auth-footer{font-size:12px;color:var(--text-light);margin-top:16px}
+.auth-footer a{color:var(--rose);cursor:pointer;text-decoration:underline}
+.app-content{display:none}
+.app-content.show{display:flex;flex-direction:column;align-items:center;width:100%}
+.my-sessions-link{font-size:12px;color:var(--rose);margin-bottom:16px;text-decoration:none}
+.my-sessions-link:hover{text-decoration:underline}
+.storage-hint{font-size:11px;color:var(--text-light);margin-bottom:12px}
 </style>
 </head>
 <body>
 <div class="page-bg"></div>
 
 <main class="page-box">
+<div class="auth-gate" id="authGate">
+  <header><div class="logo">delicious</div><div class="tagline">Swipe &amp; Pick</div></header>
+  <p class="hero-text" style="margin-bottom:24px">Sign in to create sessions and keep your shoots</p>
+  <div class="auth-tabs">
+    <button class="auth-tab active" data-tab="login">Log in</button>
+    <button class="auth-tab" data-tab="signup">Sign up</button>
+  </div>
+  <form class="auth-form" id="authForm">
+    <input class="inp" type="text" id="authName" placeholder="Your name" required>
+    <input class="inp" type="password" id="authPin" placeholder="PIN (4–8 digits)" minlength="4" maxlength="8" required>
+    <button class="btn-create" type="submit" id="authSubmit">Log in</button>
+    <div class="auth-error" id="authError"></div>
+  </form>
+</div>
+
+<div class="app-content" id="appContent">
 <header>
   <div class="logo">delicious</div>
   <div class="tagline">Swipe &amp; Pick</div>
+  <a href="/me" class="my-sessions-link">My sessions</a>
 </header>
 
 <p class="hero-text">Upload your photos, share with friends,<br>let them <span>pick their faves</span></p>
+<div class="storage-hint" id="storageHint"></div>
 
 <div class="upload-area" id="uploadArea">
   <div class="upload-icon">＋</div>
@@ -118,6 +152,7 @@ header{position:relative;z-index:2;text-align:center;padding:0 0 6px}
 
 <div class="progress-bar" id="progressBar"><div class="fill" id="progressFill"></div></div>
 <button class="btn-create" id="btnCreate" style="display:none">Create Session</button>
+</div>
 </main>
 
 <div class="share-modal" id="shareModal">
@@ -145,8 +180,69 @@ const shareModal = document.getElementById('shareModal');
 const countLabel = document.getElementById('countLabel');
 const photosHeader = document.getElementById('photosHeader');
 const photosClear = document.getElementById('photosClear');
+const authGate = document.getElementById('authGate');
+const appContent = document.getElementById('appContent');
+const authForm = document.getElementById('authForm');
+const authName = document.getElementById('authName');
+const authPin = document.getElementById('authPin');
+const authSubmit = document.getElementById('authSubmit');
+const authError = document.getElementById('authError');
+const storageHint = document.getElementById('storageHint');
 
 let selectedFiles = [];
+let authMode = 'login';
+
+// Auth gate
+function showApp() {
+  authGate.classList.remove('show');
+  appContent.classList.add('show');
+  updateStorageHint();
+}
+function showAuth() {
+  authGate.classList.add('show');
+  appContent.classList.remove('show');
+}
+if (getCurrentUser()) {
+  showApp();
+} else {
+  showAuth();
+}
+
+document.querySelectorAll('.auth-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    authMode = tab.dataset.tab;
+    authSubmit.textContent = authMode === 'login' ? 'Log in' : 'Sign up';
+    authError.style.display = 'none';
+  });
+});
+
+authForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  authError.style.display = 'none';
+  authSubmit.disabled = true;
+  try {
+    if (authMode === 'signup') {
+      await signup(authName.value, authPin.value);
+    } else {
+      await login(authName.value, authPin.value);
+    }
+    showApp();
+  } catch (err) {
+    authError.textContent = err.message || 'Failed';
+    authError.style.display = 'block';
+  }
+  authSubmit.disabled = false;
+});
+
+async function updateStorageHint() {
+  const user = getCurrentUser();
+  if (!user) return;
+  const used = await getUserStorage(user.id);
+  const pct = ((used / STORAGE_LIMIT_BYTES) * 100).toFixed(0);
+  storageHint.textContent = `Storage: ${(used / 1024 / 1024).toFixed(1)} / 30 MB used`;
+}
 
 uploadArea.addEventListener('click', () => fileInput.click());
 uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('dragover'); });
@@ -188,6 +284,9 @@ function renderPreviews() {
 
 btnCreate.addEventListener('click', async () => {
   if (selectedFiles.length === 0) return;
+  const user = getCurrentUser();
+  if (!user) { showAuth(); return; }
+
   btnCreate.disabled = true;
   btnCreate.textContent = 'Uploading...';
   progressBar.style.display = 'block';
@@ -198,14 +297,26 @@ btnCreate.addEventListener('click', async () => {
   const creatorName = document.getElementById('creatorName').value || '';
 
   try {
+    const used = await getUserStorage(user.id);
+    const blobs = [];
+    let totalNew = 0;
+    for (let i = 0; i < selectedFiles.length; i++) {
+      const blob = await compressImage(selectedFiles[i]);
+      blobs.push(blob);
+      totalNew += blob.size;
+    }
+    if (used + totalNew > STORAGE_LIMIT_BYTES) {
+      throw new Error('Storage limit (30MB) reached. Upgrade coming soon.');
+    }
+
     const { error: sessionErr } = await db.from('sessions').insert({
-      id: sessionId, name: sessionName, creator_name: creatorName, creator_token: creatorToken
+      id: sessionId, name: sessionName, creator_name: creatorName, creator_token: creatorToken, user_id: user.id
     });
     if (sessionErr) throw sessionErr;
 
     const photos = [];
-    for (let i = 0; i < selectedFiles.length; i++) {
-      const blob = await compressImage(selectedFiles[i]);
+    for (let i = 0; i < blobs.length; i++) {
+      const blob = blobs[i];
       const filename = `${sessionId}/${String(i + 1).padStart(2, '0')}.jpg`;
 
       const { error: uploadErr } = await db.storage
@@ -215,15 +326,16 @@ btnCreate.addEventListener('click', async () => {
 
       const { data: urlData } = db.storage.from('photos').getPublicUrl(filename);
 
-      photos.push({ session_id: sessionId, photo_index: i, storage_path: filename, url: urlData.publicUrl });
+      photos.push({ session_id: sessionId, photo_index: i, storage_path: filename, url: urlData.publicUrl, size_bytes: blob.size });
 
-      progressFill.style.width = Math.round(((i + 1) / selectedFiles.length) * 100) + '%';
+      progressFill.style.width = Math.round(((i + 1) / blobs.length) * 100) + '%';
     }
 
     const { error: photosErr } = await db.from('session_photos').insert(photos);
     if (photosErr) throw photosErr;
 
     localStorage.setItem(`delicious-${sessionId}`, creatorToken);
+    updateStorageHint();
     showShareModal(sessionId);
   } catch (err) {
     console.error('Upload error:', err);

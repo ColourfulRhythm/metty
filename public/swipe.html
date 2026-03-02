@@ -68,8 +68,14 @@ header{position:relative;z-index:2;padding:0 0 20px;text-align:center;width:100%
 .done-screen h2{font-family:'Playfair Display',serif;font-style:italic;font-size:38px;color:var(--rose);line-height:1.1;margin-bottom:6px}
 .done-screen .sub{font-size:10px;font-weight:500;letter-spacing:0.22em;color:var(--text-light);text-transform:uppercase;margin-bottom:24px}
 .picks-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%;max-width:min(420px,100%)}
-.picks-grid img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:20px;box-shadow:0 4px 20px rgba(0,0,0,0.1)}
+.pick-card{position:relative;border-radius:20px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.1)}
+.pick-card img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
+.pick-download{position:absolute;bottom:0;left:0;right:0;padding:10px;background:linear-gradient(to top,rgba(45,31,28,0.7),transparent);display:flex;justify-content:center}
+.btn-download{padding:8px 16px;border-radius:100px;background:white;border:none;font-size:12px;font-weight:500;color:var(--text-dark);cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.15)}
+.btn-download:hover{background:var(--cream)}
 .picks-grid .empty{grid-column:1/-1;text-align:center;padding:40px 0;font-size:14px;color:var(--text-light)}
+.picks-download-all{margin-top:20px;text-align:center}
+.btn-download-all{padding:12px 24px;border-radius:100px;background:linear-gradient(135deg,var(--rose) 0%,var(--rose-dark) 100%);color:white;border:none;font-size:13px;font-weight:500;cursor:pointer}
 
 .chat-fab{position:fixed;bottom:calc(var(--pad-bottom) + 80px);right:var(--gutter-r);width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--rose) 0%,var(--rose-dark) 100%);color:white;border:none;font-size:22px;cursor:pointer;box-shadow:0 4px 20px rgba(179,96,79,0.35);z-index:150;display:none;align-items:center;justify-content:center;transition:transform .2s}
 .chat-fab:hover{transform:scale(1.1)}
@@ -289,6 +295,20 @@ function updateDots() {
   });
 }
 
+async function downloadImage(url, filename) {
+  try {
+    const r = await fetch(url, { mode: 'cors' });
+    const blob = await r.blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  } catch {
+    window.open(url, '_blank');
+  }
+}
+
 function showDone() {
   document.getElementById('actions').style.display = 'none';
   const doneScreen = document.getElementById('doneScreen');
@@ -298,11 +318,37 @@ function showDone() {
   if (picks.length === 0) {
     grid.innerHTML = '<div class="empty">You didn&rsquo;t pick any — that&rsquo;s okay too</div>';
   } else {
-    picks.forEach(idx => {
+    picks.forEach((idx, i) => {
+      const card = document.createElement('div');
+      card.className = 'pick-card';
       const img = document.createElement('img');
       img.src = photos[idx].url;
-      grid.appendChild(img);
+      img.alt = `Pick ${i + 1}`;
+      const dl = document.createElement('div');
+      dl.className = 'pick-download';
+      const btn = document.createElement('button');
+      btn.className = 'btn-download';
+      btn.textContent = '↓ Download';
+      btn.onclick = () => downloadImage(photos[idx].url, `pick-${i + 1}.jpg`);
+      dl.appendChild(btn);
+      card.appendChild(img);
+      card.appendChild(dl);
+      grid.appendChild(card);
     });
+    const allRow = document.createElement('div');
+    allRow.className = 'picks-download-all';
+    allRow.style.gridColumn = '1 / -1';
+    const allBtn = document.createElement('button');
+    allBtn.className = 'btn-download-all';
+    allBtn.textContent = '↓ Download all picks';
+    allBtn.onclick = async () => {
+      for (let i = 0; i < picks.length; i++) {
+        await downloadImage(photos[picks[i]].url, `pick-${i + 1}.jpg`);
+        if (i < picks.length - 1) await new Promise(r => setTimeout(r, 300));
+      }
+    };
+    allRow.appendChild(allBtn);
+    grid.appendChild(allRow);
   }
 }
 

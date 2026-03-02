@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>My Sessions — Delicious</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💗</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --blush:#f5e8e4;--blush-deep:#e8cfc8;--rose:#c97b6e;--rose-dark:#b3604f;--cream:#faf5f3;
+  --text-dark:#2d1f1c;--text-mid:#7a5c57;--text-light:#b89a95;--white:#ffffff;
+  --pad:40px;--gutter:max(var(--pad),env(safe-area-inset-left));--gutter-r:max(var(--pad),env(safe-area-inset-right));--pad-top:max(var(--pad),env(safe-area-inset-top));--pad-bottom:max(var(--pad),env(safe-area-inset-bottom))
+}
+body{font-family:'DM Sans',sans-serif;background:#f0e4e0;min-height:100dvh;padding:var(--pad-top) var(--gutter) var(--pad-bottom) var(--gutter-r)}
+.page-box{background:rgba(255,255,255,0.5);border-radius:28px;padding:28px 24px;margin:0 auto;max-width:min(420px,100%);box-shadow:0 4px 24px rgba(180,100,80,0.08)}
+.page-bg{position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 50% 0%,#f0d8d2 0%,transparent 60%),var(--cream)}
+header{position:relative;z-index:2;text-align:center;padding:0 0 20px;margin-bottom:20px;border-bottom:1px solid var(--blush-deep)}
+.logo{font-family:'Playfair Display',serif;font-style:italic;font-size:36px;color:var(--rose)}
+.user-bar{display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap;gap:8px}
+.user-name{font-size:14px;color:var(--text-mid)}
+.btn-logout{background:transparent;border:1px solid var(--blush-deep);color:var(--text-mid);padding:8px 16px;border-radius:100px;font-size:12px;cursor:pointer}
+.btn-logout:hover{background:var(--blush-deep);color:var(--text-dark)}
+.storage-bar{background:var(--blush-deep);height:8px;border-radius:4px;overflow:hidden;margin:16px 0;max-width:100%}
+.storage-fill{height:100%;background:linear-gradient(90deg,var(--rose),var(--rose-dark));border-radius:4px;transition:width .3s}
+.storage-label{font-size:11px;color:var(--text-light);margin-bottom:4px}
+.storage-upgrade{font-size:12px;color:var(--rose);margin-top:4px}
+.section-label{font-size:10px;font-weight:500;letter-spacing:0.2em;color:var(--text-light);text-transform:uppercase;margin-bottom:12px}
+.session-list{display:flex;flex-direction:column;gap:12px}
+.session-card{background:var(--white);border-radius:20px;padding:18px;box-shadow:0 2px 12px rgba(180,100,80,0.06);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.session-name{font-size:16px;font-weight:500;color:var(--text-dark)}
+.session-meta{font-size:11px;color:var(--text-light)}
+.session-actions{display:flex;gap:8px}
+.btn-session{padding:10px 18px;border-radius:100px;font-size:12px;font-weight:500;border:none;cursor:pointer;text-decoration:none}
+.btn-dash{background:var(--rose);color:white}
+.btn-share{background:transparent;border:1.5px solid var(--blush-deep);color:var(--text-dark)}
+.empty-sessions{text-align:center;padding:32px 20px;color:var(--text-light);font-size:14px}
+.btn-new{display:block;width:100%;padding:16px;margin-top:20px;border-radius:20px;background:linear-gradient(135deg,var(--rose) 0%,var(--rose-dark) 100%);color:white;font-size:12px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;text-align:center;cursor:pointer;border:none;text-decoration:none}
+.btn-new:hover{opacity:.95}
+</style>
+</head>
+<body>
+<div class="page-bg"></div>
+<main class="page-box">
+  <header>
+    <div class="logo">delicious</div>
+    <div class="user-bar">
+      <span class="user-name" id="userName">—</span>
+      <button class="btn-logout" id="btnLogout">Log out</button>
+    </div>
+  </header>
+  <div class="storage-label" id="storageLabel">Storage: 0 / 30 MB</div>
+  <div class="storage-bar"><div class="storage-fill" id="storageFill" style="width:0%"></div></div>
+  <div class="storage-upgrade" id="storageUpgrade" style="display:none">At 30MB limit — upgrade coming soon</div>
+
+  <div class="section-label">Your sessions</div>
+  <div class="session-list" id="sessionList"></div>
+  <a href="/" class="btn-new">+ Create new session</a>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/js/config.js"></script>
+<script>
+const user = getCurrentUser();
+if (!user) {
+  location.href = '/';
+  throw new Error('redirect');
+}
+
+document.getElementById('userName').textContent = user.name;
+
+document.getElementById('btnLogout').onclick = () => {
+  logout();
+  location.href = '/';
+};
+
+async function load() {
+  const used = await getUserStorage(user.id);
+  const pct = Math.min(100, (used / STORAGE_LIMIT_BYTES) * 100);
+  document.getElementById('storageLabel').textContent = `Storage: ${(used / 1024 / 1024).toFixed(1)} / 30 MB`;
+  document.getElementById('storageFill').style.width = pct + '%';
+  document.getElementById('storageUpgrade').style.display = used >= STORAGE_LIMIT_BYTES ? 'block' : 'none';
+
+  const { data: sessions } = await db.from('sessions').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
+  const el = document.getElementById('sessionList');
+  if (!sessions || sessions.length === 0) {
+    el.innerHTML = '<div class="empty-sessions">No sessions yet — create one to get started</div>';
+    return;
+  }
+  el.innerHTML = sessions.map(s => {
+    const shareUrl = `${location.origin}/s/${s.id}`;
+    return `<div class="session-card">
+      <div>
+        <div class="session-name">${escHtml(s.name)}</div>
+        <div class="session-meta">${new Date(s.created_at).toLocaleDateString()}</div>
+      </div>
+      <div class="session-actions">
+        <a href="/s/${s.id}" class="btn-session btn-share" target="_blank">Share</a>
+        <a href="/dashboard/${s.id}" class="btn-session btn-dash">Dashboard</a>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+load();
+</script>
+</body>
+</html>

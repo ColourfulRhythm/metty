@@ -2,6 +2,7 @@
   "rewrites": [
     { "source": "/s/:id", "destination": "/swipe.html" },
     { "source": "/dashboard/:id", "destination": "/dashboard.html" },
+    { "source": "/me", "destination": "/me.html" },
     { "source": "/js/:path*", "destination": "/js/:path*" }
   ],
   "outputDirectory": "public"
