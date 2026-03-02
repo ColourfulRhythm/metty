@@ -13,14 +13,19 @@
   --rose:#c97b6e;--rose-dark:#b3604f;--rose-light:#e8a99f;
   --cream:#faf5f3;--text-dark:#2d1f1c;--text-mid:#7a5c57;--text-light:#b89a95;
   --white:#ffffff;--green:#4caf82;
-  --gutter:max(28px,env(safe-area-inset-left));--gutter-r:max(28px,env(safe-area-inset-right))
+  --pad:40px;--gutter:max(var(--pad),env(safe-area-inset-left));--gutter-r:max(var(--pad),env(safe-area-inset-right));--pad-top:max(var(--pad),env(safe-area-inset-top));--pad-bottom:max(var(--pad),env(safe-area-inset-bottom))
 }
 html{overflow-x:hidden}
 body{
   font-family:'DM Sans',sans-serif;background:#f0e4e0;min-height:100dvh;
   display:flex;flex-direction:column;align-items:center;overflow-x:hidden;position:relative;
-  padding:calc(env(safe-area-inset-top)+24px) var(--gutter) calc(env(safe-area-inset-bottom)+32px) var(--gutter-r);
+  padding:var(--pad-top) var(--gutter) var(--pad-bottom) var(--gutter-r);
   width:100%;max-width:100vw
+}
+.page-box{
+  width:100%;max-width:min(420px,100%);flex:1;display:flex;flex-direction:column;align-items:center;
+  background:rgba(255,255,255,0.5);border-radius:28px;padding:32px 24px 36px;
+  margin:0 auto;box-shadow:0 4px 24px rgba(180,100,80,0.08)
 }
 .page-bg{
   position:fixed;inset:0;pointer-events:none;z-index:0;
@@ -69,7 +74,7 @@ header{position:relative;z-index:2;text-align:center;padding:0 0 6px}
 .progress-bar{display:none;width:100%;max-width:min(420px,100%);height:4px;background:var(--blush-deep);border-radius:2px;margin-top:16px;overflow:hidden;position:relative;z-index:2}
 .progress-bar .fill{height:100%;background:linear-gradient(90deg,var(--rose-light),var(--rose));border-radius:2px;transition:width .3s;width:0%}
 
-.share-modal{display:none;position:fixed;inset:0;z-index:200;background:rgba(250,245,243,.97);backdrop-filter:blur(12px);flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:48px var(--gutter) 48px var(--gutter-r);text-align:center}
+.share-modal{display:none;position:fixed;inset:0;z-index:200;background:rgba(250,245,243,.97);backdrop-filter:blur(12px);flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:var(--pad-top) var(--gutter) var(--pad-bottom) var(--gutter-r);text-align:center}
 .share-modal.show{display:flex}
 .share-modal .s3-logo{font-family:'Playfair Display',serif;font-style:italic;font-size:36px;color:var(--rose);margin-bottom:2px}
 .share-modal .share-sub{font-size:10px;font-weight:500;letter-spacing:0.22em;color:var(--text-light);text-transform:uppercase;margin-bottom:20px}
@@ -85,6 +90,7 @@ header{position:relative;z-index:2;text-align:center;padding:0 0 6px}
 <body>
 <div class="page-bg"></div>
 
+<main class="page-box">
 <header>
   <div class="logo">delicious</div>
   <div class="tagline">Swipe &amp; Pick</div>
@@ -112,6 +118,7 @@ header{position:relative;z-index:2;text-align:center;padding:0 0 6px}
 
 <div class="progress-bar" id="progressBar"><div class="fill" id="progressFill"></div></div>
 <button class="btn-create" id="btnCreate" style="display:none">Create Session</button>
+</main>
 
 <div class="share-modal" id="shareModal">
   <div class="s3-logo">delicious</div>
